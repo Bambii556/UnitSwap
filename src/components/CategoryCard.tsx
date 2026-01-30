@@ -1,6 +1,5 @@
 import { IconSymbol, IconSymbolName } from "@/components/ui/icon-symbol";
 import { useTheme } from "@/providers/ThemeProvider";
-import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
@@ -23,7 +22,7 @@ export function CategoryCard({
 
   return (
     <TouchableOpacity
-      className="w-[48%] mb-4 rounded-xl overflow-hidden"
+      className="w-[45%] mb-4 rounded-xl overflow-hidden p-4 aspect-square items-start justify-between"
       onPress={onPress}
       style={{
         backgroundColor: colors.cardBackground,
@@ -34,23 +33,16 @@ export function CategoryCard({
         elevation: 5,
       }}
     >
-      <LinearGradient
-        colors={[color, colors.cardGradientEnd]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        className="p-4 aspect-square items-start justify-between"
+      <View
+        className="w-12 h-12 items-center justify-center rounded-lg"
+        style={{ backgroundColor: color + "20" }}
       >
-        <View
-          className="p-3 rounded-full"
-          style={{ backgroundColor: colors.background + "50" }}
-        >
-          <IconSymbol name={icon} size={28} color={colors.text} />
-        </View>
-        <View>
-          <Text className="text-white text-lg font-bold mt-2">{title}</Text>
-          <Text className="text-white text-sm opacity-80 mt-1">{units}</Text>
-        </View>
-      </LinearGradient>
+        <IconSymbol name={icon} size={24} color={color} />
+      </View>
+      <View>
+        <Text className="text-text text-lg font-bold mt-2">{title}</Text>
+        <Text className="text-text text-sm opacity-60 mt-1">{units}</Text>
+      </View>
     </TouchableOpacity>
   );
 }

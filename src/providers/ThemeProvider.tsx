@@ -4,7 +4,7 @@ import { useColorScheme } from "react-native";
 
 type ThemeContextType = {
   colorScheme: "light" | "dark";
-  colors: typeof Colors.light;
+  colors: typeof Colors.dark;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);

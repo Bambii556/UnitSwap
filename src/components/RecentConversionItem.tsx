@@ -38,7 +38,7 @@ export function RecentConversionItem({
           <Text className="text-text text-base font-medium">
             {fromValue} {fromUnit} to {toUnit}
           </Text>
-          <Text className="text-gray-500 text-xs mt-1">{timeAgo}</Text>
+          <Text className="text-tabIconDefault text-xs mt-1">{timeAgo}</Text>
         </View>
       </View>
       <Text className="text-tint text-base font-semibold">
