@@ -10,7 +10,7 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style={"light"} />
+      <StatusBar style="light" />
       <RootLayoutContent />
     </SafeAreaProvider>
   );
@@ -20,7 +20,7 @@ function RootLayoutContent() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-background-dark dark">
+    <SafeAreaView className="flex-1 bg-background">
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen

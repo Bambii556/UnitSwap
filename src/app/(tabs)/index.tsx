@@ -3,11 +3,25 @@ import { CategoryCard } from "@/components/CategoryCard";
 import { RecentConversionItem } from "@/components/RecentConversionItem";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Link } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { ScrollView, TextInput, View } from "react-native";
 import { ThemedText } from "../../components/themed-text";
+import { ALL_CATEGORIES } from "../../constants/categories";
 
 export default function HomeScreen() {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredCategories = ALL_CATEGORIES.filter((category) => {
+    const lowerCaseQuery = searchQuery.toLowerCase();
+    return (
+      category.name.toLowerCase().includes(lowerCaseQuery) ||
+      category.units.toLowerCase().includes(lowerCaseQuery) ||
+      category.fullNames.some((fullName) =>
+        fullName.toLowerCase().includes(lowerCaseQuery),
+      )
+    );
+  });
+
   return (
     <ScrollView
       className="flex-1 bg-background"
@@ -22,6 +36,8 @@ export default function HomeScreen() {
           className="ml-2 flex-1 text-text"
           placeholder="Search units (e.g., meters to feet)"
           placeholderTextColor="#8a8a8e"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
         />
       </View>
 
@@ -33,56 +49,7 @@ export default function HomeScreen() {
 
       {/* Categories Grid - Placeholder for now */}
       <View className="mt-4 px-4 flex-row flex-wrap justify-between gap-y-4">
-        {[
-          {
-            name: "Length",
-            units: "m, ft, in, km, mi",
-            icon: "ruler.fill",
-            color: "#4285F4",
-          },
-          {
-            name: "Weight",
-            units: "kg, lb, oz, g",
-            icon: "dumbbell.fill",
-            color: "#34A853",
-          },
-          {
-            name: "Temp",
-            units: "°C, °F, K",
-            icon: "thermometer.sun.fill",
-            color: "#EA4335",
-          },
-          {
-            name: "Volume",
-            units: "l, gal, ml, cup",
-            icon: "drop.fill",
-            color: "#4285F4",
-          },
-          {
-            name: "Area",
-            units: "m², ft², acre",
-            icon: "square.fill.and.line.vertical.and.line.horizontal",
-            color: "#9C27B0",
-          },
-          {
-            name: "Currency",
-            units: "USD, EUR, GBP",
-            icon: "coloncurrencysign.circle.fill",
-            color: "#F9AB00",
-          },
-          {
-            name: "Speed",
-            units: "km/h, mph, m/s",
-            icon: "speedometer",
-            color: "#D32F2F",
-          },
-          {
-            name: "Time",
-            units: "sec, min, hr, day",
-            icon: "hourglass.bottomhalf.fill",
-            color: "#1976D2",
-          },
-        ].map((category) => (
+        {filteredCategories.map((category) => (
           <Link
             key={category.name}
             href={{
