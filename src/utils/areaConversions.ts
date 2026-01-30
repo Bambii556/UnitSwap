@@ -1,0 +1,38 @@
+import { CategoryType, UnitType } from "./conversions";
+
+const areaUnits: Record<string, UnitType> = {
+  sqm: { label: "Square Meters", toBase: (v) => v },
+  sqft: { label: "Square Feet", toBase: (v) => v * 0.092903 },
+  sqkm: { label: "Square Kilometers", toBase: (v) => v * 1_000_000 },
+  sqmi: { label: "Square Miles", toBase: (v) => v * 2_589_988 },
+  acre: { label: "Acres", toBase: (v) => v * 4046.86 },
+  hectare: { label: "Hectares", toBase: (v) => v * 10_000 },
+};
+
+export const areaCategory: CategoryType = {
+  name: "Area",
+  baseUnit: "sqm",
+  units: areaUnits,
+};
+
+export function convertArea(
+  value: number,
+  fromUnitKey: string,
+  toUnitKey: string,
+): number | null {
+  if (value === null || isNaN(value)) return null;
+
+  const fromUnit = areaUnits[fromUnitKey];
+  const toUnit = areaUnits[toUnitKey];
+
+  if (!fromUnit || !toUnit || !fromUnit.toBase || !toUnit.toBase) return null;
+
+  if (fromUnitKey === toUnitKey) return value;
+
+  const baseValue = fromUnit.toBase(value);
+  const factorForOneTargetUnitInBase = toUnit.toBase(1);
+
+  if (factorForOneTargetUnitInBase === 0) return null; // Avoid division by zero
+
+  return baseValue / factorForOneTargetUnitInBase;
+}
