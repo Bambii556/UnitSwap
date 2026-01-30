@@ -35,7 +35,7 @@ export default function HomeScreen() {
       </View>
 
       {/* Categories Grid - Placeholder for now */}
-      <View className="mt-4 px-4 flex-row flex-wrap justify-between">
+      <View className="mt-4 px-4 flex-row flex-wrap justify-between gap-y-4">
         {[
           {
             name: "Length",
@@ -93,13 +93,13 @@ export default function HomeScreen() {
               params: { type: category.name },
             }}
             asChild
+            className="w-[48%] md:w-[31%] mb-4"
           >
             <CategoryCard
               title={category.name}
               units={category.units}
               icon={category.icon as any}
               color={category.color}
-              onPress={() => {}}
             />
           </Link>
         ))}

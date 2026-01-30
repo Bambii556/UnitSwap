@@ -8,7 +8,7 @@ interface CategoryCardProps {
   units: string;
   icon: IconSymbolName;
   color: string;
-  onPress: () => void;
+  onPress?: () => void;
 }
 
 export function CategoryCard({
@@ -22,7 +22,7 @@ export function CategoryCard({
 
   return (
     <TouchableOpacity
-      className="w-[45%] mb-4 rounded-xl overflow-hidden p-4 aspect-square items-start justify-between"
+      className="w-[120px] h-[120px] rounded-xl overflow-hidden p-3 items-center justify-center gap-y-1"
       onPress={onPress}
       style={{
         backgroundColor: colors.cardBackground,
@@ -34,14 +34,16 @@ export function CategoryCard({
       }}
     >
       <View
-        className="w-12 h-12 items-center justify-center rounded-lg"
+        className="w-10 h-10 items-center justify-center rounded-lg"
         style={{ backgroundColor: color + "20" }}
       >
         <IconSymbol name={icon} size={24} color={color} />
       </View>
       <View>
-        <Text className="text-text text-lg font-bold mt-2">{title}</Text>
-        <Text className="text-text text-sm opacity-60 mt-1">{units}</Text>
+        <Text className="text-text text-base font-bold mt-2">{title}</Text>
+      </View>
+      <View>
+        <Text className="text-text text-xs opacity-60 mt-1">{units}</Text>
       </View>
     </TouchableOpacity>
   );
