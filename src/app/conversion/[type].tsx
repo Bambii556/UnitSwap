@@ -15,7 +15,6 @@ export default function ConversionScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <AppHeader
         title={typeof type === "string" ? type : "Conversion"}
-        onMenuPress={() => router.back()}
         onHistoryPress={() => {}}
       />
 

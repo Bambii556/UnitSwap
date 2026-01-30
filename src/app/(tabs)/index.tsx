@@ -15,11 +15,7 @@ export default function HomeScreen() {
       className="flex-1 bg-background"
       contentContainerStyle={{ paddingBottom: 20 }}
     >
-      <AppHeader
-        title="Converter"
-        onMenuPress={() => {}}
-        onHistoryPress={() => {}}
-      />
+      <AppHeader title="Converter" onHistoryPress={() => {}} />
 
       {/* Search Bar */}
       <View
