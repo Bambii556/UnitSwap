@@ -1,6 +1,7 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import React from "react";
-import { Platform, Text, TouchableOpacity, View } from "react-native";
+import { Platform, TouchableOpacity, View } from "react-native";
+import { ThemedText } from "../components/themed-text";
 
 interface AppHeaderProps {
   title: string;
@@ -30,7 +31,9 @@ export function AppHeader({
         )}
       </View>
       <View>
-        <Text className="text-white text-xl font-bold">{title}</Text>
+        <ThemedText className="text-white text-xl font-bold">
+          {title}
+        </ThemedText>
       </View>
       <View>
         <TouchableOpacity onPress={onHistoryPress}>

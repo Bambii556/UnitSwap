@@ -4,7 +4,8 @@ import { RecentConversionItem } from "@/components/RecentConversionItem";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Link } from "expo-router";
 import React from "react";
-import { ScrollView, Text, TextInput, View } from "react-native";
+import { ScrollView, TextInput, View } from "react-native";
+import { ThemedText } from "../../components/themed-text";
 
 export default function HomeScreen() {
   return (
@@ -25,7 +26,9 @@ export default function HomeScreen() {
       </View>
 
       <View className="mt-6 px-4">
-        <Text className="text-text text-xl font-bold">Categories</Text>
+        <ThemedText className="text-text text-xl font-bold">
+          Categories
+        </ThemedText>
       </View>
 
       {/* Categories Grid - Placeholder for now */}
@@ -100,7 +103,9 @@ export default function HomeScreen() {
       </View>
 
       <View className="mt-6 px-4">
-        <Text className="text-text text-xl font-bold">Recent Conversions</Text>
+        <ThemedText className="text-text text-xl font-bold">
+          Recent Conversions
+        </ThemedText>
       </View>
 
       {/* Recent Conversions List - Placeholder for now */}

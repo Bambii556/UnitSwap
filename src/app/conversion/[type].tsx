@@ -3,13 +3,8 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { categories, CategoryKey } from "@/utils/conversions";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, TextInput, TouchableOpacity, View } from "react-native";
+import { ThemedText } from "../../components/themed-text";
 
 export default function ConversionScreen() {
   const { type } = useLocalSearchParams();
@@ -89,13 +84,13 @@ export default function ConversionScreen() {
           {/* FROM Input Field */}
           <View className="bg-card rounded-xl border-2 border-primary p-5 shadow-sm">
             <View className="flex justify-between items-center mb-1">
-              <Text className="text-xs font-bold text-primary uppercase tracking-wider">
+              <ThemedText className="text-xs font-bold text-primary uppercase tracking-wider">
                 FROM
-              </Text>
+              </ThemedText>
               <View className="flex items-center text-muted">
-                <Text className="text-sm font-medium mr-1">
+                <ThemedText className="text-sm font-medium mr-1">
                   {currentCategory.units[fromUnit]?.label}
-                </Text>
+                </ThemedText>
                 <IconSymbol name="chevron.down" size={16} color="#8a8a8e" />
               </View>
             </View>
@@ -108,9 +103,9 @@ export default function ConversionScreen() {
                 value={fromValue}
                 onChangeText={setFromValue}
               />
-              <Text className="ml-2 text-xl font-medium text-muted">
+              <ThemedText className="ml-2 text-xl font-medium text-muted">
                 {currentCategory.units[fromUnit]?.symbol}
-              </Text>
+              </ThemedText>
             </View>
             {/* The UnitPicker itself will be visually hidden or rendered as a modal later */}
             {/* {currentCategory && currentCategory.units && (
@@ -143,13 +138,13 @@ export default function ConversionScreen() {
           {/* TO Output Field */}
           <View className="bg-card rounded-xl p-5 border border-transparent">
             <View className="flex justify-between items-center mb-1">
-              <Text className="text-xs font-bold text-muted uppercase tracking-wider">
+              <ThemedText className="text-xs font-bold text-muted uppercase tracking-wider">
                 TO
-              </Text>
+              </ThemedText>
               <View className="flex items-center text-muted">
-                <Text className="text-sm font-medium mr-1">
+                <ThemedText className="text-sm font-medium mr-1">
                   {currentCategory.units[toUnit]?.label}
-                </Text>
+                </ThemedText>
                 <IconSymbol name="chevron.down" size={16} color="#8a8a8e" />
               </View>
             </View>
@@ -161,9 +156,9 @@ export default function ConversionScreen() {
                 editable={false}
                 value={toValue}
               />
-              <Text className="ml-2 text-xl font-medium text-muted">
+              <ThemedText className="ml-2 text-xl font-medium text-muted">
                 {currentCategory.units[toUnit]?.symbol}
-              </Text>
+              </ThemedText>
             </View>
             {/* The UnitPicker itself will be visually hidden or rendered as a modal later */}
             {/* {currentCategory && currentCategory.units && (

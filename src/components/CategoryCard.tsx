@@ -1,6 +1,7 @@
 import { IconSymbol, IconSymbolName } from "@/components/ui/icon-symbol";
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
+import { ThemedText } from "../components/themed-text";
 
 interface CategoryCardProps {
   title: string;
@@ -29,10 +30,14 @@ export function CategoryCard({
         <IconSymbol name={icon} size={24} color={color} />
       </View>
       <View>
-        <Text className="text-text text-base font-bold mt-2">{title}</Text>
+        <ThemedText className="text-text text-base font-bold mt-2">
+          {title}
+        </ThemedText>
       </View>
       <View>
-        <Text className="text-muted text-xs opacity-60 mt-1">{units}</Text>
+        <ThemedText className="text-muted text-xs opacity-60 mt-1">
+          {units}
+        </ThemedText>
       </View>
     </TouchableOpacity>
   );

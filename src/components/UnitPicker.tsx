@@ -1,6 +1,7 @@
 import { Picker } from "@react-native-picker/picker";
 import React from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
+import { ThemedText } from "../components/themed-text";
 import { UnitType } from "../utils/conversions"; // Should resolve now that TS dependency is installed
 
 interface UnitPickerProps {
@@ -20,7 +21,9 @@ const UnitPicker: React.FC<UnitPickerProps> = ({
 
   return (
     <View className="w-full mb-4">
-      <Text className="text-sm text-gray-600 mb-1 font-semibold">{label}</Text>
+      <ThemedText className="text-sm text-gray-600 mb-1 font-semibold">
+        {label}
+      </ThemedText>
       <View className="border border-gray-300 rounded-lg bg-white overflow-hidden">
         <Picker
           selectedValue={selectedValue}
