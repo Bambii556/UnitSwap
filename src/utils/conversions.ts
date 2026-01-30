@@ -15,6 +15,7 @@ import { convertWeight, weightCategory } from "./weightConversions";
 
 export type UnitType = {
   label: string;
+  symbol: string;
   toBase?: (v: number) => number; // for linear conversions (most)
   fromBase?: (v: number) => number; // optional, default 1 / toBase
   convert?: (

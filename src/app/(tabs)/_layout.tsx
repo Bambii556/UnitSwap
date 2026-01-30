@@ -1,5 +1,4 @@
 import { IconSymbol, IconSymbolName } from "@/components/ui/icon-symbol";
-import { useTheme } from "@/providers/ThemeProvider";
 import { Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
@@ -14,17 +13,15 @@ function TabBarIcon({ name, color }: TabBarIconProps) {
 }
 
 export default function TabLayout() {
-  const { colors } = useTheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.tint,
-        tabBarInactiveTintColor: colors.tabIconDefault,
+        tabBarActiveTintColor: "#0a7ea4", // active
+        tabBarInactiveTintColor: "#8a8a8e", // muted
         tabBarShowLabel: true,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: colors.background,
+          backgroundColor: "#101622", // background
           borderTopWidth: 0,
           elevation: 0,
         },

@@ -14,6 +14,7 @@ const MAPPING = {
   "chart.bar.fill": "bar-chart",
   "heart.fill": "favorite",
   "gearshape.fill": "settings",
+  "xmark.circle.fill": "close", // Added for modal close button
   magnifyingglass: "search",
   "line.horizontal.3": "menu",
   "arrow.counterclockwise": "history",
@@ -29,6 +30,8 @@ const MAPPING = {
   "paperplane.fill": "send",
   "chevron.left.forwardslash.chevron.right": "code",
   "chevron.right": "chevron-right",
+  "chevron.down": "expand-more",
+  "delete.left": "backspace", // Changed to 'backspace' Material Icon
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;

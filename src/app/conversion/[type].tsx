@@ -1,67 +1,182 @@
 import { AppHeader } from "@/components/AppHeader";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useTheme } from "@/providers/ThemeProvider";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { categories, CategoryKey } from "@/utils/conversions";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function ConversionScreen() {
   const { type } = useLocalSearchParams();
   const router = useRouter();
-  const { colors } = useTheme();
+
+  const categoryKey =
+    typeof type === "string" ? (type as CategoryKey) : "length";
+
+  const currentCategory = useMemo(() => {
+    // Ensure categories[categoryKey] is defined before using it
+    return categories[categoryKey] || categories["length"];
+  }, [categoryKey]);
+
+  const [fromValue, setFromValue] = useState("0");
+  const [toValue, setToValue] = useState("0");
+  const [fromUnit, setFromUnit] = useState(
+    currentCategory?.baseUnit ||
+      Object.keys(currentCategory?.units || {})[0] ||
+      "",
+  );
+  const [toUnit, setToUnit] = useState(
+    Object.keys(currentCategory?.units || {})[1] ||
+      Object.keys(currentCategory?.units || {})[0] ||
+      "",
+  );
+
+  // Effect to reset units when category changes
+  useEffect(() => {
+    setFromUnit(
+      currentCategory?.baseUnit ||
+        Object.keys(currentCategory?.units || {})[0] ||
+        "",
+    );
+    setToUnit(
+      Object.keys(currentCategory?.units || {})[1] ||
+        Object.keys(currentCategory?.units || {})[0] ||
+        "",
+    );
+    setFromValue("0");
+    setToValue("0");
+  }, [categoryKey, currentCategory]); // Add currentCategory to dependencies
+
+  // TODO: Implement actual conversion logic
+  const convertValue = (value: string, from: string, to: string) => {
+    // This is where your conversion logic from src/utils/conversions.ts would go
+    // For now, it's a placeholder
+    if (from === to) return value;
+    // Example: Simple placeholder conversion (not actual logic)
+    if (from === "Kilometers" && to === "Miles")
+      return (parseFloat(value) * 0.621371).toFixed(3);
+    if (from === "Miles" && to === "Kilometers")
+      return (parseFloat(value) * 1.60934).toFixed(3);
+    return "0";
+  };
+
+  useEffect(() => {
+    const converted = convertValue(fromValue, fromUnit, toUnit);
+    setToValue(converted);
+  }, [fromValue, fromUnit, toUnit]);
 
   return (
-    <View className="flex-1 bg-background">
-      <Stack.Screen options={{ headerShown: false }} />
+    <View className="flex-1 bg-background text-text">
       <AppHeader
-        title={typeof type === "string" ? type : "Conversion"}
-        onHistoryPress={() => {}}
+        title={currentCategory.name}
+        onBackPress={() => {
+          router.back();
+        }}
+        onHistoryPress={() => {
+          router.push("/(tabs)/saved");
+        }}
+        onSettingsPress={() => {
+          router.push("/(tabs)/settings");
+        }}
       />
+      <ScrollView className="flex-1 px-4 py-4">
+        <View className="flex flex-col gap-2 relative">
+          {/* FROM Input Field */}
+          <View className="bg-card rounded-xl border-2 border-primary p-5 shadow-sm">
+            <View className="flex justify-between items-center mb-1">
+              <Text className="text-xs font-bold text-primary uppercase tracking-wider">
+                FROM
+              </Text>
+              <View className="flex items-center text-muted">
+                <Text className="text-sm font-medium mr-1">
+                  {currentCategory.units[fromUnit]?.label}
+                </Text>
+                <IconSymbol name="chevron.down" size={16} color="#8a8a8e" />
+              </View>
+            </View>
+            <View className="flex items-baseline overflow-hidden">
+              <TextInput
+                className="flex-1 text-4xl md:text-5xl font-bold tracking-tight text-text"
+                placeholder="0"
+                placeholderTextColor="#8a8a8e"
+                keyboardType="numeric"
+                value={fromValue}
+                onChangeText={setFromValue}
+              />
+              <Text className="ml-2 text-xl font-medium text-muted">
+                {currentCategory.units[fromUnit]?.symbol}
+              </Text>
+            </View>
+            {/* The UnitPicker itself will be visually hidden or rendered as a modal later */}
+            {/* {currentCategory && currentCategory.units && (
+              <UnitPicker
+                selectedValue={fromUnit}
+                onValueChange={setFromUnit}
+                units={currentCategory.units}
+                label="From Unit"
+              />
+            )} */}
+          </View>
 
-      <View className="flex-1 p-4">
-        <Text className="text-text text-lg font-bold mb-4">Convert {type}</Text>
-
-        {/* Input Field */}
-        <View
-          className="flex-row items-center rounded-lg p-3 mb-4"
-          style={{ backgroundColor: colors.cardBackground }}
-        >
-          <TextInput
-            className="flex-1 text-text text-base"
-            placeholder="Enter value"
-            placeholderTextColor={colors.tabIconDefault}
-            keyboardType="numeric"
-          />
-          <TouchableOpacity className="ml-2 p-2 rounded-md bg-tint">
-            <Text className="text-white font-semibold">Unit</Text>
+          {/* Swap Button */}
+          <TouchableOpacity
+            className="flex size-12 cursor-pointer items-center justify-center rounded-full bg-primary text-icon shadow-lg shadow-primary/30 border-4 border-background active:scale-95 transition-transform -my-5 z-10 self-center"
+            onPress={() => {
+              setFromUnit(toUnit);
+              setToUnit(fromUnit);
+              setFromValue(toValue); // Swap values as well
+              setToValue(fromValue); // Swap values as well
+            }}
+          >
+            <IconSymbol
+              name="arrow.up.arrow.down"
+              size={24}
+              color="text-icon"
+            />
           </TouchableOpacity>
-        </View>
 
-        {/* Swap Button */}
-        <TouchableOpacity className="items-center my-2">
-          <IconSymbol
-            name="arrow.up.arrow.down"
-            size={24}
-            color={colors.tint}
-          />
-        </TouchableOpacity>
-
-        {/* Output Field */}
-        <View
-          className="flex-row items-center rounded-lg p-3 mb-4"
-          style={{ backgroundColor: colors.cardBackground }}
-        >
-          <TextInput
-            className="flex-1 text-text text-base"
-            placeholder="Result"
-            placeholderTextColor={colors.tabIconDefault}
-            editable={false}
-          />
-          <TouchableOpacity className="ml-2 p-2 rounded-md bg-tint">
-            <Text className="text-white font-semibold">Unit</Text>
-          </TouchableOpacity>
+          {/* TO Output Field */}
+          <View className="bg-card rounded-xl p-5 border border-transparent">
+            <View className="flex justify-between items-center mb-1">
+              <Text className="text-xs font-bold text-muted uppercase tracking-wider">
+                TO
+              </Text>
+              <View className="flex items-center text-muted">
+                <Text className="text-sm font-medium mr-1">
+                  {currentCategory.units[toUnit]?.label}
+                </Text>
+                <IconSymbol name="chevron.down" size={16} color="#8a8a8e" />
+              </View>
+            </View>
+            <View className="flex items-baseline overflow-hidden">
+              <TextInput
+                className="flex-1 text-4xl md:text-5xl font-bold tracking-tight text-text"
+                placeholder="0"
+                placeholderTextColor="#8a8a8e"
+                editable={false}
+                value={toValue}
+              />
+              <Text className="ml-2 text-xl font-medium text-muted">
+                {currentCategory.units[toUnit]?.symbol}
+              </Text>
+            </View>
+            {/* The UnitPicker itself will be visually hidden or rendered as a modal later */}
+            {/* {currentCategory && currentCategory.units && (
+              <UnitPicker
+                selectedValue={toUnit}
+                onValueChange={setToUnit}
+                units={currentCategory.units}
+                label="To Unit"
+              />
+            )} */}
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }

@@ -21,15 +21,15 @@ export const Colors = {
     cardGradientEnd: "#E0E2E4",
   },
   dark: {
-    text: "#ECEDEE",
-    background: "#151718",
-    tint: tintColorDark,
-    icon: "#9BA1A6",
-    tabIconDefault: "#9BA1A6",
-    tabIconSelected: tintColorDark,
-    cardBackground: "#1C1E20",
-    shadow: "#000",
-    cardGradientEnd: "#2C2E30",
+    text: "#ECEDEE", // White text
+    background: "#282a2e", // Lighter dark grey background
+    tint: "#0a7ea4", // Blue tint (can be adjusted if specific icons are problematic)
+    icon: "#ffffff", // White icons by default (individual icons might override)
+    tabIconDefault: "#8a8a8e", // Grey for inactive tab icons
+    tabIconSelected: "#0a7ea4", // Blue for selected tab icons
+    cardBackground: "#1e1f23", // Darker grey for cards
+    shadow: "#000", // Keep shadow as black
+    cardGradientEnd: "#1e1f23", // Keep card gradient end same as cardBackground
   },
 };
 

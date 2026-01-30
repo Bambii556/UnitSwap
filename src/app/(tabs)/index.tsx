@@ -2,14 +2,11 @@ import { AppHeader } from "@/components/AppHeader";
 import { CategoryCard } from "@/components/CategoryCard";
 import { RecentConversionItem } from "@/components/RecentConversionItem";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useTheme } from "@/providers/ThemeProvider";
 import { Link } from "expo-router";
 import React from "react";
 import { ScrollView, Text, TextInput, View } from "react-native";
 
 export default function HomeScreen() {
-  const { colors } = useTheme();
-
   return (
     <ScrollView
       className="flex-1 bg-background"
@@ -18,15 +15,12 @@ export default function HomeScreen() {
       <AppHeader title="Converter" onHistoryPress={() => {}} />
 
       {/* Search Bar */}
-      <View
-        className="mx-4 mt-4 flex-row items-center rounded-lg p-3"
-        style={{ backgroundColor: colors.tabIconDefault + "30" }}
-      >
-        <IconSymbol name="magnifyingglass" color={colors.icon} size={20} />
+      <View className="mx-4 mt-4 flex-row items-center rounded-lg p-3 bg-muted/30">
+        <IconSymbol name="magnifyingglass" color="text-icon" size={20} />
         <TextInput
           className="ml-2 flex-1 text-text"
           placeholder="Search units (e.g., meters to feet)"
-          placeholderTextColor={colors.tabIconDefault}
+          placeholderTextColor="#8a8a8e"
         />
       </View>
 
