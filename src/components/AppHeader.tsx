@@ -18,7 +18,7 @@ export function AppHeader({
 }: AppHeaderProps) {
   return (
     <View
-      className="flex-row items-center justify-between px-4 py-3 bg-background-dark"
+      className="flex-row items-center justify-between px-4 py-3 bg-background"
       style={{
         paddingTop: Platform.OS === "ios" ? 50 : 10,
       }}

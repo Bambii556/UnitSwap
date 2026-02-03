@@ -1,21 +1,53 @@
 import { AppHeader } from "@/components/AppHeader";
+import ConversionCard from "@/components/ConversionCard"; // New import
+import { RecentConversionItem } from "@/components/RecentConversionItem"; // New import
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { categories, CategoryKey } from "@/utils/conversions";
+import {
+  CategoryKey,
+  conversionModules,
+  convert,
+  CurrencyRates,
+} from "@/conversions";
+import { fetchCurrencyRates } from "@/conversions/converters/currency"; // Corrected path
+import {
+  Conversion,
+  getConversions,
+  initDb,
+  saveConversion,
+} from "@/database/database"; // Updated import
+import { formatTimeAgo } from "@/utils/time"; // New import
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
-import { ScrollView, TextInput, TouchableOpacity, View } from "react-native";
-import { ThemedText } from "../../components/themed-text";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { FlatList, ScrollView, TouchableOpacity, View } from "react-native"; // Add FlatList
+import { ThemedText } from "../../components/themed-text"; // New import
 
 export default function ConversionScreen() {
   const { type } = useLocalSearchParams();
+
+  useEffect(() => {
+    initDb().catch((error) =>
+      console.error("Failed to initialize database", error),
+    );
+  }, []);
   const router = useRouter();
 
   const categoryKey =
-    typeof type === "string" ? (type as CategoryKey) : "length";
+    typeof type === "string" ? (type.toLowerCase() as CategoryKey) : "length";
 
   const currentCategory = useMemo(() => {
-    // Ensure categories[categoryKey] is defined before using it
-    return categories[categoryKey] || categories["length"];
+    // Ensure conversionModules[categoryKey] is defined before using it
+    return conversionModules[categoryKey] || conversionModules["length"];
+  }, [categoryKey]);
+
+  const fetchCategoryConversions = useCallback(async () => {
+    try {
+      const conversions = await getConversions(10, 0, categoryKey);
+      setCategoryConversions(conversions);
+    } catch (error: any) {
+      console.error("Failed to fetch category conversions", error);
+    } finally {
+      setLoadingCategoryConversions(false);
+    }
   }, [categoryKey]);
 
   const [fromValue, setFromValue] = useState("0");
@@ -31,6 +63,12 @@ export default function ConversionScreen() {
       "",
   );
 
+  const [categoryConversions, setCategoryConversions] = useState<Conversion[]>(
+    [],
+  );
+  const [loadingCategoryConversions, setLoadingCategoryConversions] =
+    useState(true);
+
   // Effect to reset units when category changes
   useEffect(() => {
     setFromUnit(
@@ -45,25 +83,106 @@ export default function ConversionScreen() {
     );
     setFromValue("0");
     setToValue("0");
-  }, [categoryKey, currentCategory]); // Add currentCategory to dependencies
+  }, [categoryKey, currentCategory]); // Re-fetch when category changes
 
-  // TODO: Implement actual conversion logic
-  const convertValue = (value: string, from: string, to: string) => {
-    // This is where your conversion logic from src/utils/conversions.ts would go
-    // For now, it's a placeholder
-    if (from === to) return value;
-    // Example: Simple placeholder conversion (not actual logic)
-    if (from === "Kilometers" && to === "Miles")
-      return (parseFloat(value) * 0.621371).toFixed(3);
-    if (from === "Miles" && to === "Kilometers")
-      return (parseFloat(value) * 1.60934).toFixed(3);
-    return "0";
-  };
+  const [currencyRates, setCurrencyRates] = useState<CurrencyRates | null>(
+    null,
+  );
+
+  useEffect(() => {
+    if (categoryKey === "currency") {
+      const getRates = async () => {
+        const rates = await fetchCurrencyRates();
+        setCurrencyRates(rates);
+      };
+      getRates();
+    } else {
+      setCurrencyRates(null);
+    }
+  }, [categoryKey]);
+
+  const convertValue = useCallback(
+    (value: string, from: string, to: string) => {
+      if (from === to) return value;
+      const numericValue = parseFloat(value);
+      if (isNaN(numericValue)) return "0";
+
+      const converted = convert(
+        numericValue,
+        from,
+        to,
+        categoryKey,
+        (categoryKey === "currency" ? currencyRates : undefined) as
+          | CurrencyRates
+          | undefined,
+      );
+      return converted !== null ? converted.toFixed(3) : "0";
+    },
+    [categoryKey, currencyRates], // Dependencies for useCallback
+  );
 
   useEffect(() => {
     const converted = convertValue(fromValue, fromUnit, toUnit);
     setToValue(converted);
-  }, [fromValue, fromUnit, toUnit]);
+
+    const handler = setTimeout(() => {
+      // Save conversion to database
+      const numericFromValue = parseFloat(fromValue);
+      const numericToValue = parseFloat(converted);
+
+      if (
+        !isNaN(numericFromValue) &&
+        !isNaN(numericToValue) &&
+        numericFromValue !== 0 &&
+        numericToValue !== 0
+      ) {
+        saveConversion({
+          inputValue: numericFromValue,
+          outputValue: numericToValue,
+          originalUnit: fromUnit,
+          convertedUnit: toUnit,
+          conversionType: categoryKey,
+          timestamp: Date.now(),
+        })
+          .then(() => fetchCategoryConversions()) // Re-fetch history after saving
+          .catch((error: Error) =>
+            console.error("Failed to save conversion", error),
+          );
+      }
+    }, 1000); // Debounce for 500ms
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [
+    fromValue,
+    fromUnit,
+    toUnit,
+    categoryKey,
+    convertValue,
+    fetchCategoryConversions,
+  ]);
+
+  const handleSwapPress = useCallback(() => {
+    const currentFromUnit = fromUnit;
+    const currentToUnit = toUnit;
+    const currentFromValue = fromValue;
+    const currentToValue = toValue;
+
+    setFromUnit(currentToUnit);
+    setToUnit(currentFromUnit);
+    setFromValue(currentToValue);
+    setToValue(currentFromValue);
+  }, [
+    fromUnit,
+    toUnit,
+    fromValue,
+    toValue,
+    setFromUnit,
+    setToUnit,
+    setFromValue,
+    setToValue,
+  ]);
 
   return (
     <View className="flex-1 bg-background text-text">
@@ -73,7 +192,7 @@ export default function ConversionScreen() {
           router.back();
         }}
         onHistoryPress={() => {
-          router.push("/(tabs)/saved");
+          router.push("/(tabs)/history");
         }}
         onSettingsPress={() => {
           router.push("/(tabs)/settings");
@@ -81,95 +200,94 @@ export default function ConversionScreen() {
       />
       <ScrollView className="flex-1 px-4 py-4">
         <View className="flex flex-col gap-2 relative">
-          {/* FROM Input Field */}
-          <View className="bg-card rounded-xl border-2 border-primary p-5 shadow-sm">
-            <View className="flex justify-between items-center mb-1">
-              <ThemedText className="text-xs font-bold text-primary uppercase tracking-wider">
-                FROM
-              </ThemedText>
-              <View className="flex items-center text-muted">
-                <ThemedText className="text-sm font-medium mr-1">
-                  {currentCategory.units[fromUnit]?.label}
-                </ThemedText>
-                <IconSymbol name="chevron.down" size={16} color="#8a8a8e" />
-              </View>
-            </View>
-            <View className="flex items-baseline overflow-hidden">
-              <TextInput
-                className="flex-1 text-4xl md:text-5xl font-bold tracking-tight text-text"
-                placeholder="0"
-                placeholderTextColor="#8a8a8e"
-                keyboardType="numeric"
-                value={fromValue}
-                onChangeText={setFromValue}
-              />
-              <ThemedText className="ml-2 text-xl font-medium text-muted">
-                {currentCategory.units[fromUnit]?.symbol}
-              </ThemedText>
-            </View>
-            {/* The UnitPicker itself will be visually hidden or rendered as a modal later */}
-            {/* {currentCategory && currentCategory.units && (
-              <UnitPicker
-                selectedValue={fromUnit}
-                onValueChange={setFromUnit}
-                units={currentCategory.units}
-                label="From Unit"
-              />
-            )} */}
-          </View>
+          <ConversionCard
+            title="FROM"
+            value={fromValue}
+            onValueChange={setFromValue}
+            unit={fromUnit}
+            onUnitChange={(newFromUnit) => {
+              if (newFromUnit === toUnit) {
+                // If the selected 'from' unit is the same as 'to' unit, swap them
+                setFromUnit(newFromUnit);
+                setToUnit(fromUnit);
+                setFromValue(toValue);
+                setToValue(fromValue);
+              } else {
+                setFromUnit(newFromUnit);
+              }
+            }}
+            currentCategory={currentCategory}
+            editable={true}
+            cardClassName="border-2 border-primary"
+          />
 
           {/* Swap Button */}
           <TouchableOpacity
-            className="flex size-12 cursor-pointer items-center justify-center rounded-full bg-primary text-icon shadow-lg shadow-primary/30 border-4 border-background active:scale-95 transition-transform -my-5 z-10 self-center"
-            onPress={() => {
-              setFromUnit(toUnit);
-              setToUnit(fromUnit);
-              setFromValue(toValue); // Swap values as well
-              setToValue(fromValue); // Swap values as well
-            }}
+            className="flex size-16 cursor-pointer items-center justify-center rounded-full bg-primary text-icon shadow-lg shadow-primary/30 border-4 border-background active:scale-95 transition-transform -my-5 z-10 self-center"
+            onPress={handleSwapPress}
           >
             <IconSymbol
               name="arrow.up.arrow.down"
-              size={24}
+              size={30}
               color="text-icon"
             />
           </TouchableOpacity>
 
-          {/* TO Output Field */}
-          <View className="bg-card rounded-xl p-5 border border-transparent">
-            <View className="flex justify-between items-center mb-1">
-              <ThemedText className="text-xs font-bold text-muted uppercase tracking-wider">
-                TO
-              </ThemedText>
-              <View className="flex items-center text-muted">
-                <ThemedText className="text-sm font-medium mr-1">
-                  {currentCategory.units[toUnit]?.label}
-                </ThemedText>
-                <IconSymbol name="chevron.down" size={16} color="#8a8a8e" />
-              </View>
-            </View>
-            <View className="flex items-baseline overflow-hidden">
-              <TextInput
-                className="flex-1 text-4xl md:text-5xl font-bold tracking-tight text-text"
-                placeholder="0"
-                placeholderTextColor="#8a8a8e"
-                editable={false}
-                value={toValue}
-              />
-              <ThemedText className="ml-2 text-xl font-medium text-muted">
-                {currentCategory.units[toUnit]?.symbol}
-              </ThemedText>
-            </View>
-            {/* The UnitPicker itself will be visually hidden or rendered as a modal later */}
-            {/* {currentCategory && currentCategory.units && (
-              <UnitPicker
-                selectedValue={toUnit}
-                onValueChange={setToUnit}
-                units={currentCategory.units}
-                label="To Unit"
-              />
-            )} */}
-          </View>
+          <ConversionCard
+            title="TO"
+            value={toValue}
+            unit={toUnit}
+            onUnitChange={(newToUnit) => {
+              if (newToUnit === fromUnit) {
+                // If the selected 'to' unit is the same as 'from' unit, swap them
+                setToUnit(newToUnit);
+                setFromUnit(toUnit);
+                setFromValue(toValue);
+                setToValue(fromValue);
+              } else {
+                setToUnit(newToUnit);
+              }
+            }}
+            currentCategory={currentCategory}
+            editable={false}
+            cardClassName="border-2 border-border"
+          />
+        </View>
+
+        <View className="mt-6">
+          <ThemedText className="text-text text-xl font-bold">
+            Recent {currentCategory.name} Conversions
+          </ThemedText>
+        </View>
+
+        <View className="mt-4">
+          {loadingCategoryConversions ? (
+            <ThemedText>Loading category history...</ThemedText>
+          ) : categoryConversions.length === 0 ? (
+            <ThemedText>
+              No recent conversions for this category yet.
+            </ThemedText>
+          ) : (
+            <FlatList
+              data={categoryConversions}
+              keyExtractor={(item) => item.id!.toString()}
+              renderItem={({ item }) => (
+                <RecentConversionItem
+                  fromValue={item.inputValue.toString()}
+                  fromUnit={item.originalUnit}
+                  toValue={item.outputValue.toString()}
+                  toUnit={item.convertedUnit}
+                  timeAgo={formatTimeAgo(item.timestamp)}
+                  onPress={() => {
+                    console.log("Tapped on category conversion:", item);
+                    // TODO: Optionally navigate back to this screen with pre-filled values
+                  }}
+                />
+              )}
+              ItemSeparatorComponent={() => <View className="h-2" />}
+              scrollEnabled={false} // Prevent FlatList from interfering with parent ScrollView
+            />
+          )}
         </View>
       </ScrollView>
     </View>

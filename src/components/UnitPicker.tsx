@@ -2,7 +2,7 @@ import { Picker } from "@react-native-picker/picker";
 import React from "react";
 import { View } from "react-native";
 import { ThemedText } from "../components/themed-text";
-import { UnitType } from "../utils/conversions"; // Should resolve now that TS dependency is installed
+import { UnitType } from "../conversions"; // Should resolve now that TS dependency is installed
 
 interface UnitPickerProps {
   selectedValue: string;
@@ -20,15 +20,16 @@ const UnitPicker: React.FC<UnitPickerProps> = ({
   const unitKeys = Object.keys(units);
 
   return (
-    <View className="w-full mb-4">
-      <ThemedText className="text-sm text-gray-600 mb-1 font-semibold">
+    <View className="w-full mb-1">
+      <ThemedText className="text-xs font-bold uppercase tracking-wider mb-1 text-muted">
         {label}
       </ThemedText>
-      <View className="border border-gray-300 rounded-lg bg-white overflow-hidden">
+      <View className="bg-card rounded-xl border-2 border-primary shadow-sm">
         <Picker
           selectedValue={selectedValue}
           onValueChange={onValueChange}
-          className="h-12 w-full text-black"
+          className="h-12 w-full text-text"
+          style={{ color: "#ECEDEE" }} // Set text and icon color for iOS and Android
           mode="dropdown"
         >
           {unitKeys.map((key) => (

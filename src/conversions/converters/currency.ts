@@ -1,24 +1,30 @@
-import { CategoryType, CurrencyRates, UnitType } from "./conversions";
+import { CategoryType, CurrencyRates, UnitType } from "../index";
 
 const currencyUnits: Record<string, UnitType> = {
-  USD: { label: "USD ($)" },
-  EUR: { label: "EUR (€)" },
-  GBP: { label: "GBP (£)" },
-  ZAR: { label: "ZAR (R)" },
+  USD: { label: "USD ($)", symbol: "$" },
+  EUR: { label: "EUR (€)", symbol: "€" },
+  GBP: { label: "GBP (£)", symbol: "£" },
+  ZAR: { label: "ZAR (R)", symbol: "R" },
 };
 
 export const currencyCategory: CategoryType = {
   name: "Currency",
   units: currencyUnits,
+  convert: convertCurrency, // Add the convert function here
 };
 
 export function convertCurrency(
   value: number,
   fromUnitKey: string,
   toUnitKey: string,
-  rates: CurrencyRates,
+  rates?: CurrencyRates, // Make rates optional here
 ): number | null {
   if (value === null || isNaN(value)) return null;
+
+  if (!rates) {
+    console.error("Currency rates are required for currency conversion.");
+    return null;
+  }
 
   const fromRate = rates[fromUnitKey];
   const toRate = rates[toUnitKey];

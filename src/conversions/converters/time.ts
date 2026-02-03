@@ -1,19 +1,28 @@
-import { CategoryType, UnitType } from "./conversions";
+import { CategoryType, UnitType } from "../index";
 
 const timeUnits: Record<string, UnitType> = {
-  s: { label: "Seconds", toBase: (v) => v },
-  min: { label: "Minutes", toBase: (v) => v * 60 },
-  hr: { label: "Hours", toBase: (v) => v * 3600 },
-  day: { label: "Days", toBase: (v) => v * 86400 },
-  week: { label: "Weeks", toBase: (v) => v * 604800 },
-  month: { label: "Months (approx)", toBase: (v) => v * 2629746 }, // Average month
-  year: { label: "Years (approx)", toBase: (v) => v * 31556952 }, // Average year
+  s: { label: "Seconds", symbol: "s", toBase: (v) => v },
+  min: { label: "Minutes", symbol: "min", toBase: (v) => v * 60 },
+  hr: { label: "Hours", symbol: "hr", toBase: (v) => v * 3600 },
+  day: { label: "Days", symbol: "day", toBase: (v) => v * 86400 },
+  week: { label: "Weeks", symbol: "week", toBase: (v) => v * 604800 },
+  month: {
+    label: "Months (approx)",
+    symbol: "month",
+    toBase: (v) => v * 2629746,
+  }, // Average month
+  year: {
+    label: "Years (approx)",
+    symbol: "year",
+    toBase: (v) => v * 31556952,
+  }, // Average year
 };
 
 export const timeCategory: CategoryType = {
   name: "Time",
   baseUnit: "s",
   units: timeUnits,
+  convert: convertTime,
 };
 
 export function convertTime(

@@ -41,11 +41,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="trends"
+        name="history"
         options={{
-          title: "Trends",
+          title: "History",
           tabBarIcon: ({ color }) => (
-            <TabBarIcon name="chart.bar.fill" color={color} />
+            <TabBarIcon name="arrow.counterclockwise" color={color} />
           ),
         }}
       />

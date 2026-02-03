@@ -4,14 +4,15 @@
 
 // --- 1. TYPE DEFINITIONS ---
 
-import { areaCategory, convertArea } from "./areaConversions";
-import { convertCurrency, currencyCategory } from "./currencyConversions";
-import { convertLength, lengthCategory } from "./lengthConversions";
-import { convertSpeed, speedCategory } from "./speedConversions";
-import { convertTemperature, temperatureCategory } from "./tempConversions";
-import { convertTime, timeCategory } from "./timeConversions";
-import { convertVolume, volumeCategory } from "./volumeConversions";
-import { convertWeight, weightCategory } from "./weightConversions";
+import { areaCategory } from "./converters/area";
+import { currencyCategory } from "./converters/currency";
+import { dataCategory } from "./converters/data"; // New import
+import { lengthCategory } from "./converters/length";
+import { speedCategory } from "./converters/speed";
+import { temperatureCategory } from "./converters/temp";
+import { timeCategory } from "./converters/time";
+import { volumeCategory } from "./converters/volume";
+import { weightCategory } from "./converters/weight";
 
 export type UnitType = {
   label: string;
@@ -29,6 +30,12 @@ export type CategoryType = {
   name: string;
   units: Record<string, UnitType>;
   baseUnit?: string; // for linear → base conversions
+  convert: (
+    value: number,
+    fromUnitKey: string,
+    toUnitKey: string,
+    rates?: CurrencyRates,
+  ) => number | null; // Add convert function to CategoryType
 };
 
 export type CurrencyRates = Record<string, number>;
@@ -41,11 +48,12 @@ export type CategoryKey =
   | "speed"
   | "currency"
   | "area"
-  | "time";
+  | "time"
+  | "data"; // New category key
 
 // --- 2. CONVERSION DATA ---
 
-export const categories: Record<CategoryKey, CategoryType> = {
+export const conversionModules: Record<CategoryKey, CategoryType> = {
   length: lengthCategory,
   weight: weightCategory,
   temperature: temperatureCategory,
@@ -54,9 +62,8 @@ export const categories: Record<CategoryKey, CategoryType> = {
   currency: currencyCategory,
   speed: speedCategory,
   time: timeCategory,
+  data: dataCategory, // New category module
 };
-
-// --- 3. CORE CONVERSION FUNCTION ---
 
 /**
  * Converts a numeric value from one unit to another within a specified category.
@@ -77,28 +84,19 @@ export function convert(
 ): number | null {
   if (value === null || isNaN(value)) return null;
 
-  switch (categoryKey) {
-    case "length":
-      return convertLength(value, fromUnitKey, toUnitKey);
-    case "weight":
-      return convertWeight(value, fromUnitKey, toUnitKey);
-    case "temperature":
-      return convertTemperature(value, fromUnitKey, toUnitKey);
-    case "volume":
-      return convertVolume(value, fromUnitKey, toUnitKey);
-    case "area":
-      return convertArea(value, fromUnitKey, toUnitKey);
-    case "currency":
-      if (!rates) {
-        console.error("Currency rates are required for currency conversion.");
-        return null;
-      }
-      return convertCurrency(value, fromUnitKey, toUnitKey, rates);
-    case "speed":
-      return convertSpeed(value, fromUnitKey, toUnitKey);
-    case "time":
-      return convertTime(value, fromUnitKey, toUnitKey);
-    default:
+  const categoryModule = conversionModules[categoryKey];
+  if (!categoryModule) {
+    console.error(`Unknown categoryKey: ${categoryKey}`);
+    return null;
+  }
+
+  if (categoryKey === "currency") {
+    if (!rates) {
+      console.error("Currency rates are required for currency conversion.");
       return null;
+    }
+    return categoryModule.convert(value, fromUnitKey, toUnitKey, rates);
+  } else {
+    return categoryModule.convert(value, fromUnitKey, toUnitKey);
   }
 }

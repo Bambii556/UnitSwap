@@ -1,18 +1,19 @@
-import { CategoryType, UnitType } from "./conversions";
+import { CategoryType, UnitType } from "../index";
 
 const volumeUnits: Record<string, UnitType> = {
-  ml: { label: "Milliliters", toBase: (v) => v },
-  L: { label: "Liters", toBase: (v) => v * 1000 },
-  tsp: { label: "Teaspoons", toBase: (v) => v * 4.92892 }, // approx
-  tbsp: { label: "Tablespoons", toBase: (v) => v * 14.7868 }, // approx
-  cup: { label: "Cups (US)", toBase: (v) => v * 236.588 }, // approx
-  fl_oz: { label: "Fluid Ounces", toBase: (v) => v * 29.5735 }, // approx
+  ml: { label: "Milliliters", symbol: "ml", toBase: (v) => v },
+  L: { label: "Liters", symbol: "L", toBase: (v) => v * 1000 },
+  tsp: { label: "Teaspoons", symbol: "tsp", toBase: (v) => v * 4.92892 }, // approx
+  tbsp: { label: "Tablespoons", symbol: "tbsp", toBase: (v) => v * 14.7868 }, // approx
+  cup: { label: "Cups (US)", symbol: "cup", toBase: (v) => v * 236.588 }, // approx
+  fl_oz: { label: "Fluid Ounces", symbol: "fl oz", toBase: (v) => v * 29.5735 }, // approx
 };
 
 export const volumeCategory: CategoryType = {
   name: "Volume (Cooking)",
   baseUnit: "ml",
   units: volumeUnits,
+  convert: convertVolume,
 };
 
 export function convertVolume(

@@ -12,6 +12,7 @@ module.exports = {
       colors: {
         primary: "#135bec",
         background: "#101622",
+        border: "#2e2f34",
         text: "#ECEDEE",
         card: "#1e1f23",
         icon: "#ffffff",

@@ -1,17 +1,18 @@
-import { CategoryType, UnitType } from "./conversions";
+import { CategoryType, UnitType } from "../index";
 
 const weightUnits: Record<string, UnitType> = {
-  kg: { label: "Kilograms", toBase: (v) => v },
-  g: { label: "Grams", toBase: (v) => v / 1000 },
-  lb: { label: "Pounds (lbs)", toBase: (v) => v * 0.453592 },
-  oz: { label: "Ounces (oz)", toBase: (v) => v * 0.0283495 },
-  ton: { label: "Tons (Metric)", toBase: (v) => v * 1000 },
+  kg: { label: "Kilograms", symbol: "kg", toBase: (v) => v },
+  g: { label: "Grams", symbol: "g", toBase: (v) => v / 1000 },
+  lb: { label: "Pounds (lbs)", symbol: "lb", toBase: (v) => v * 0.453592 },
+  oz: { label: "Ounces (oz)", symbol: "oz", toBase: (v) => v * 0.0283495 },
+  ton: { label: "Tons (Metric)", symbol: "ton", toBase: (v) => v * 1000 },
 };
 
 export const weightCategory: CategoryType = {
   name: "Weight",
   baseUnit: "kg",
   units: weightUnits,
+  convert: convertWeight,
 };
 
 export function convertWeight(

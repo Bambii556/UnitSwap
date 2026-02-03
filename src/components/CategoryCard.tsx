@@ -20,7 +20,7 @@ export function CategoryCard({
 }: CategoryCardProps) {
   return (
     <TouchableOpacity
-      className="w-[120px] h-[120px] rounded-xl overflow-hidden p-3 items-center justify-center gap-y-1 bg-card shadow-md"
+      className="w-[120px] h-[120px] rounded-xl overflow-hidden p-3 items-center justify-center gap-y-1 bg-card shadow-md border-2 border-border"
       onPress={onPress}
     >
       <View
@@ -30,12 +30,20 @@ export function CategoryCard({
         <IconSymbol name={icon} size={24} color={color} />
       </View>
       <View>
-        <ThemedText className="text-text text-base font-bold mt-2">
+        <ThemedText
+          className="text-text text-base font-bold mt-2"
+          numberOfLines={2}
+          ellipsizeMode="tail"
+        >
           {title}
         </ThemedText>
       </View>
       <View>
-        <ThemedText className="text-muted text-xs opacity-60 mt-1">
+        <ThemedText
+          className="text-muted text-xs opacity-60 mt-1"
+          numberOfLines={2}
+          ellipsizeMode="tail"
+        >
           {units}
         </ThemedText>
       </View>

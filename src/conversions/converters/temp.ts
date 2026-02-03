@@ -1,8 +1,9 @@
-import { CategoryType, UnitType } from "./conversions";
+import { CategoryType, UnitType } from "../index";
 
 const temperatureUnits: Record<string, UnitType> = {
   C: {
     label: "Celsius (°C)",
+    symbol: "°C",
     convert: (v, targetUnitKey) => {
       if (targetUnitKey === "F") return (v * 9) / 5 + 32;
       if (targetUnitKey === "K") return v + 273.15;
@@ -11,6 +12,7 @@ const temperatureUnits: Record<string, UnitType> = {
   },
   F: {
     label: "Fahrenheit (°F)",
+    symbol: "°F",
     convert: (v, targetUnitKey) => {
       if (targetUnitKey === "C") return ((v - 32) * 5) / 9;
       if (targetUnitKey === "K") return ((v - 32) * 5) / 9 + 273.15;
@@ -19,6 +21,7 @@ const temperatureUnits: Record<string, UnitType> = {
   },
   K: {
     label: "Kelvin (K)",
+    symbol: "K",
     convert: (v, targetUnitKey) => {
       if (targetUnitKey === "C") return v - 273.15;
       if (targetUnitKey === "F") return ((v - 273.15) * 9) / 5 + 32;
@@ -30,6 +33,7 @@ const temperatureUnits: Record<string, UnitType> = {
 export const temperatureCategory: CategoryType = {
   name: "Temperature",
   units: temperatureUnits,
+  convert: convertTemperature,
 };
 
 export function convertTemperature(

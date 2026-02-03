@@ -1,18 +1,23 @@
-import { CategoryType, UnitType } from "./conversions";
+import { CategoryType, UnitType } from "../index";
 
 const areaUnits: Record<string, UnitType> = {
-  sqm: { label: "Square Meters", toBase: (v) => v },
-  sqft: { label: "Square Feet", toBase: (v) => v * 0.092903 },
-  sqkm: { label: "Square Kilometers", toBase: (v) => v * 1_000_000 },
-  sqmi: { label: "Square Miles", toBase: (v) => v * 2_589_988 },
-  acre: { label: "Acres", toBase: (v) => v * 4046.86 },
-  hectare: { label: "Hectares", toBase: (v) => v * 10_000 },
+  sqm: { label: "Square Meters", symbol: "m²", toBase: (v) => v },
+  sqft: { label: "Square Feet", symbol: "ft²", toBase: (v) => v * 0.092903 },
+  sqkm: {
+    label: "Square Kilometers",
+    symbol: "km²",
+    toBase: (v) => v * 1_000_000,
+  },
+  sqmi: { label: "Square Miles", symbol: "mi²", toBase: (v) => v * 2_589_988 },
+  acre: { label: "Acres", symbol: "acre", toBase: (v) => v * 4046.86 },
+  hectare: { label: "Hectares", symbol: "ha", toBase: (v) => v * 10_000 },
 };
 
 export const areaCategory: CategoryType = {
   name: "Area",
   baseUnit: "sqm",
   units: areaUnits,
+  convert: convertArea,
 };
 
 export function convertArea(
