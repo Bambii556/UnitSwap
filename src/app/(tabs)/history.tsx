@@ -1,63 +1,23 @@
 import { AppHeader } from "@/components/AppHeader";
-import { RecentConversionItem } from "@/components/RecentConversionItem";
+import { RecentConversionList } from "@/components/RecentConversionList"; // Updated import
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import {
-  Conversion,
-  getConversions,
-  getDb,
-  searchConversions,
-} from "@/database/database";
-import { formatTimeAgo } from "@/utils/time";
 import { useRouter } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, TextInput, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useState } from "react";
+import { TextInput, TouchableOpacity, View } from "react-native"; // Removed FlatList from here
 
 const ITEMS_PER_PAGE = 10;
 
 export default function HistoryScreen() {
   const router = useRouter();
-  const [history, setHistory] = useState<Conversion[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0); // To store total count for pagination
 
-  const fetchHistory = useCallback(async () => {
-    setLoading(true);
-    try {
-      let conversions: Conversion[];
-      const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-
-      // For simplicity, total count is fetched by running a count query.
-      // In a real app, this might be a separate API endpoint or a more efficient query.
-      const db = await getDb();
-      const countResult = await db.getFirstAsync<{ count: number }>(
-        `SELECT COUNT(*) as count FROM conversions;`,
-      );
-      setTotalCount(countResult?.count || 0);
-
-      if (searchTerm) {
-        conversions = await searchConversions(
-          searchTerm,
-          ITEMS_PER_PAGE,
-          offset,
-        );
-      } else {
-        conversions = await getConversions(ITEMS_PER_PAGE, offset);
-      }
-      setHistory(conversions);
-    } catch (error: any) {
-      console.error("Failed to fetch history", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [searchTerm, currentPage]);
-
-  useEffect(() => {
-    fetchHistory();
-  }, [fetchHistory]);
+  const handleRefreshComplete = useCallback((count: number) => {
+    setTotalCount(count);
+  }, []);
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
@@ -86,58 +46,43 @@ export default function HistoryScreen() {
             placeholderTextColor="#8a8a8e"
             value={searchTerm}
             onChangeText={setSearchTerm}
-            onSubmitEditing={fetchHistory} // Trigger search on submit
+            onSubmitEditing={() => setCurrentPage(1)} // Trigger search on submit, reset to page 1
           />
         </View>
 
-        {loading ? (
-          <ThemedText>Loading history...</ThemedText>
-        ) : history.length === 0 ? (
-          <ThemedText>No conversion history found.</ThemedText>
-        ) : (
-          <>
-            <FlatList
-              data={history}
-              keyExtractor={(item) => item.id!.toString()}
-              renderItem={({ item }) => (
-                <RecentConversionItem
-                  fromValue={item.inputValue.toString()}
-                  fromUnit={item.originalUnit}
-                  toValue={item.outputValue.toString()}
-                  toUnit={item.convertedUnit}
-                  timeAgo={formatTimeAgo(item.timestamp)}
-                  onPress={() => {
-                    console.log("Tapped on history item:", item);
-                    // TODO: Optionally navigate back to conversion screen with pre-filled values
-                  }}
-                />
-              )}
-              ItemSeparatorComponent={() => <View className="h-2" />}
-            />
+        <RecentConversionList
+          listType="all"
+          searchTerm={searchTerm}
+          currentPage={currentPage}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onRefreshComplete={handleRefreshComplete}
+          onConversionPress={(item) => {
+            console.log("Tapped on history item:", item);
+            // TODO: Optionally navigate back to conversion screen with pre-filled values
+          }}
+        />
 
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <View className="flex-row justify-between items-center mt-4">
-                <TouchableOpacity
-                  onPress={handlePrevPage}
-                  disabled={currentPage === 1}
-                  className={`p-2 rounded-lg ${currentPage === 1 ? "bg-muted/30" : "bg-primary"}`}
-                >
-                  <ThemedText className="text-white">Previous</ThemedText>
-                </TouchableOpacity>
-                <ThemedText className="text-text">
-                  Page {currentPage} of {totalPages}
-                </ThemedText>
-                <TouchableOpacity
-                  onPress={handleNextPage}
-                  disabled={currentPage === totalPages}
-                  className={`p-2 rounded-lg ${currentPage === totalPages ? "bg-muted/30" : "bg-primary"}`}
-                >
-                  <ThemedText className="text-white">Next</ThemedText>
-                </TouchableOpacity>
-              </View>
-            )}
-          </>
+        {/* Pagination Controls */}
+        {totalCount > 0 && totalPages > 1 && (
+          <View className="flex-row justify-between items-center mt-4">
+            <TouchableOpacity
+              onPress={handlePrevPage}
+              disabled={currentPage === 1}
+              className={`p-2 rounded-lg ${currentPage === 1 ? "bg-muted/30" : "bg-primary"}`}
+            >
+              <ThemedText className="text-white">Previous</ThemedText>
+            </TouchableOpacity>
+            <ThemedText className="text-text">
+              Page {currentPage} of {totalPages}
+            </ThemedText>
+            <TouchableOpacity
+              onPress={handleNextPage}
+              disabled={currentPage === totalPages}
+              className={`p-2 rounded-lg ${currentPage === totalPages ? "bg-muted/30" : "bg-primary"}`}
+            >
+              <ThemedText className="text-white">Next</ThemedText>
+            </TouchableOpacity>
+          </View>
         )}
       </View>
     </ThemedView>

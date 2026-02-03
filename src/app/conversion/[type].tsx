@@ -1,6 +1,6 @@
 import { AppHeader } from "@/components/AppHeader";
 import ConversionCard from "@/components/ConversionCard"; // New import
-import { RecentConversionItem } from "@/components/RecentConversionItem"; // New import
+import { RecentConversionList } from "@/components/RecentConversionList"; // New import
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import {
   CategoryKey,
@@ -9,16 +9,10 @@ import {
   CurrencyRates,
 } from "@/conversions";
 import { fetchCurrencyRates } from "@/conversions/converters/currency"; // Corrected path
-import {
-  Conversion,
-  getConversions,
-  initDb,
-  saveConversion,
-} from "@/database/database"; // Updated import
-import { formatTimeAgo } from "@/utils/time"; // New import
+import { initDb, saveConversion } from "@/database/database"; // Updated import
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { FlatList, ScrollView, TouchableOpacity, View } from "react-native"; // Add FlatList
+import { ScrollView, TouchableOpacity, View } from "react-native"; // Add FlatList
 import { ThemedText } from "../../components/themed-text"; // New import
 
 export default function ConversionScreen() {
@@ -39,17 +33,6 @@ export default function ConversionScreen() {
     return conversionModules[categoryKey] || conversionModules["length"];
   }, [categoryKey]);
 
-  const fetchCategoryConversions = useCallback(async () => {
-    try {
-      const conversions = await getConversions(10, 0, categoryKey);
-      setCategoryConversions(conversions);
-    } catch (error: any) {
-      console.error("Failed to fetch category conversions", error);
-    } finally {
-      setLoadingCategoryConversions(false);
-    }
-  }, [categoryKey]);
-
   const [fromValue, setFromValue] = useState("0");
   const [toValue, setToValue] = useState("0");
   const [fromUnit, setFromUnit] = useState(
@@ -63,11 +46,7 @@ export default function ConversionScreen() {
       "",
   );
 
-  const [categoryConversions, setCategoryConversions] = useState<Conversion[]>(
-    [],
-  );
-  const [loadingCategoryConversions, setLoadingCategoryConversions] =
-    useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Effect to reset units when category changes
   useEffect(() => {
@@ -144,7 +123,7 @@ export default function ConversionScreen() {
           conversionType: categoryKey,
           timestamp: Date.now(),
         })
-          .then(() => fetchCategoryConversions()) // Re-fetch history after saving
+          .then(() => setRefreshTrigger((prev) => prev + 1)) // Trigger refresh in RecentConversionList
           .catch((error: Error) =>
             console.error("Failed to save conversion", error),
           );
@@ -154,14 +133,7 @@ export default function ConversionScreen() {
     return () => {
       clearTimeout(handler);
     };
-  }, [
-    fromValue,
-    fromUnit,
-    toUnit,
-    categoryKey,
-    convertValue,
-    fetchCategoryConversions,
-  ]);
+  }, [fromValue, fromUnit, toUnit, categoryKey, convertValue]);
 
   const handleSwapPress = useCallback(() => {
     const currentFromUnit = fromUnit;
@@ -201,6 +173,7 @@ export default function ConversionScreen() {
       <ScrollView className="flex-1 px-4 py-4">
         <View className="flex flex-col gap-2 relative">
           <ConversionCard
+            key="from-card"
             title="FROM"
             value={fromValue}
             onValueChange={setFromValue}
@@ -234,6 +207,7 @@ export default function ConversionScreen() {
           </TouchableOpacity>
 
           <ConversionCard
+            key="to-card"
             title="TO"
             value={toValue}
             unit={toUnit}
@@ -260,35 +234,16 @@ export default function ConversionScreen() {
           </ThemedText>
         </View>
 
-        <View className="mt-4">
-          {loadingCategoryConversions ? (
-            <ThemedText>Loading category history...</ThemedText>
-          ) : categoryConversions.length === 0 ? (
-            <ThemedText>
-              No recent conversions for this category yet.
-            </ThemedText>
-          ) : (
-            <FlatList
-              data={categoryConversions}
-              keyExtractor={(item) => item.id!.toString()}
-              renderItem={({ item }) => (
-                <RecentConversionItem
-                  fromValue={item.inputValue.toString()}
-                  fromUnit={item.originalUnit}
-                  toValue={item.outputValue.toString()}
-                  toUnit={item.convertedUnit}
-                  timeAgo={formatTimeAgo(item.timestamp)}
-                  onPress={() => {
-                    console.log("Tapped on category conversion:", item);
-                    // TODO: Optionally navigate back to this screen with pre-filled values
-                  }}
-                />
-              )}
-              ItemSeparatorComponent={() => <View className="h-2" />}
-              scrollEnabled={false} // Prevent FlatList from interfering with parent ScrollView
-            />
-          )}
-        </View>
+        <RecentConversionList
+          listType="category"
+          categoryKey={categoryKey}
+          currentCategory={currentCategory}
+          refreshTrigger={refreshTrigger}
+          onConversionPress={(item) => {
+            console.log("Tapped on category conversion:", item);
+            // TODO: Optionally navigate back to this screen with pre-filled values
+          }}
+        />
       </ScrollView>
     </View>
   );

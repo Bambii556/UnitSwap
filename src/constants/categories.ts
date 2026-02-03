@@ -32,15 +32,15 @@ export const ALL_CATEGORIES = [
     color: "#34A853",
   },
   {
-    name: "Temp",
-    units: "\u00B0C, \u00B0F, K, \u00B0R",
+    name: "Temperature", // Changed from "Temp" to "Temperature"
+    units: "°C, °F, K, °R",
     fullNames: ["celsius", "fahrenheit", "kelvin", "rankine"],
-    icon: "thermometer.sun.fill",
+    icon: "thermometer.medium.slash.fill", // Changed icon
     color: "#EA4335",
   },
   {
     name: "Volume",
-    units: "l, gal, ml, cup, fl oz, tbsp, tsp, m\u00B3, ft\u00B3, in\u00B3",
+    units: "l, gal, ml, cup, fl oz, tbsp, tsp, m³, ft³, in³",
     fullNames: [
       "liter",
       "gallon",
@@ -58,7 +58,7 @@ export const ALL_CATEGORIES = [
   },
   {
     name: "Area",
-    units: "m\u00B2, ft\u00B2, acre, km\u00B2, ha, yd\u00B2, mi\u00B2",
+    units: "m², ft², acre, km², ha, yd², mi²",
     fullNames: [
       "square meter",
       "square feet",
