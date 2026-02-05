@@ -33,7 +33,7 @@ const UnitPicker: React.FC<UnitPickerProps> = ({
         className="flex-row items-center justify-between"
         onPress={() => setModalVisible(true)}
       >
-        <ThemedText className="text-sm font-medium mr-1 text-muted">
+        <ThemedText className="text-m font-medium mr-1 text-muted">
           {selectedUnitLabel}
         </ThemedText>
         <MaterialIcons name="expand-more" size={16} color={Colors.dark.muted} />

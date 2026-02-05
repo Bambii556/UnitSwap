@@ -1,7 +1,7 @@
 import React from "react";
 import { TouchableOpacity } from "react-native";
 import { ThemedText } from "../components/themed-text";
-import { CardBackground } from "./CardBackground";
+import { BlurBackground } from "./BlurBackground";
 import { CategoryIcon } from "./CategoryIcon"; // Import CategoryIcon
 
 interface CategoryCardProps {
@@ -22,7 +22,7 @@ export function CategoryCard({
       className="w-[48%] aspect-square rounded-xl"
       onPress={onPress}
     >
-      <CardBackground className="flex-1 p-3 flex flex-col items-center justify-center gap-y-2">
+      <BlurBackground className="flex-1 p-3 flex flex-col items-center justify-center gap-y-2">
         <CategoryIcon
           categoryName={title}
           containerSize={45}
@@ -43,7 +43,7 @@ export function CategoryCard({
         >
           {units}
         </ThemedText>
-      </CardBackground>
+      </BlurBackground>
     </TouchableOpacity>
   );
 }

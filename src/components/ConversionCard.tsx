@@ -41,14 +41,10 @@ const ConversionCard: React.FC<ConversionCardProps> = ({
     <View
       className={cn(
         "bg-card rounded-xl p-5 h-[110px]",
-        editable
-          ? primary
-            ? "border-2 border-primary"
-            : "border-border"
-          : "border-2 border-primary",
+        primary ? "border-2 border-primary" : "border-border",
       )}
     >
-      {/* Title and Unit Picker Row */}
+      {/* Title (FROM/TO) and Unit Picker Row */}
       <View className="flex flex-row justify-between items-center mb-1">
         <ThemedText
           className={cn(

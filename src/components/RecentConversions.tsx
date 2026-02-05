@@ -1,7 +1,8 @@
 import { HistoryItem } from "@/components/HistoryItem";
 import { Conversion, getConversions } from "@/database/database";
 import { formatTimeAgo } from "@/utils/time";
-import React, { useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { ThemedText } from "./themed-text";
 
@@ -15,23 +16,26 @@ export const RecentConversions: React.FC<RecentConversionsProps> = ({
   const [conversions, setConversions] = useState<Conversion[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchLatestConversions = async () => {
-      try {
-        setLoading(true);
-        // Fetch top 5 latest conversions, no offset
-        const fetchedConversions = await getConversions(5, 0);
-        setConversions(fetchedConversions);
-      } catch (error) {
-        console.error("Failed to fetch latest conversions:", error);
-        setConversions([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchLatestConversions = async () => {
+        try {
+          console.log("Fetching latest conversions...");
+          setLoading(true);
+          // Fetch top 5 latest conversions, no offset
+          const fetchedConversions = await getConversions(5, 0);
+          setConversions(fetchedConversions);
+        } catch (error) {
+          console.error("Failed to fetch latest conversions:", error);
+          setConversions([]);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    fetchLatestConversions();
-  }, []);
+      fetchLatestConversions();
+    }, []),
+  );
 
   if (loading) {
     return (

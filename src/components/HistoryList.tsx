@@ -10,7 +10,6 @@ import { formatTimeAgo } from "@/utils/time";
 import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, View } from "react-native"; // Removed TouchableOpacity
 import { ThemedText } from "./themed-text";
-import { ThemedView } from "./themed-view";
 
 interface HistoryListProps {
   listType: "category" | "all";
@@ -20,7 +19,6 @@ interface HistoryListProps {
   refreshTrigger?: number;
   onConversionPress?: (item: Conversion) => void;
   infiniteScroll?: boolean; // New prop for infinite scroll
-  ListHeaderComponent?: React.ComponentType<any> | React.ReactElement | null;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -33,7 +31,6 @@ export const HistoryList: React.FC<HistoryListProps> = ({
   refreshTrigger,
   onConversionPress,
   infiniteScroll = false, // Default to false
-  ListHeaderComponent = null,
 }) => {
   const [conversions, setConversions] = useState<Conversion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -183,9 +180,6 @@ export const HistoryList: React.FC<HistoryListProps> = ({
     }
   }, [currentPage, infiniteScroll]);
 
-  const titleText = currentCategory
-    ? `Recent ${currentCategory.name} Conversions`
-    : "Recent Conversions";
   const emptyText = currentCategory
     ? `No recent conversions for this ${currentCategory.name} category yet.`
     : "No recent conversions yet.";
@@ -200,32 +194,29 @@ export const HistoryList: React.FC<HistoryListProps> = ({
   };
 
   return (
-    <ThemedView className="mt-4 min-h-[100px]">
-      <FlatList
-        className="flex-1 bg-background"
-        onRefresh={handleRefresh}
-        refreshing={refreshing}
-        data={conversions}
-        keyExtractor={(item) => item.id!.toString()}
-        renderItem={({ item }) => (
-          <HistoryItem
-            fromValue={item.inputValue.toString()}
-            fromUnit={item.originalUnit}
-            toValue={item.outputValue.toString()}
-            toUnit={item.convertedUnit}
-            timeAgo={formatTimeAgo(item.timestamp)}
-            onPress={() => onConversionPress && onConversionPress(item)}
-            conversionType={item.conversionType}
-          />
-        )}
-        ItemSeparatorComponent={() => <View className="h-2" />}
-        onEndReached={infiniteScroll ? handleLoadMore : null} // Only enable onEndReached for infinite scroll
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={renderFooter}
-        ListHeaderComponent={ListHeaderComponent}
-        scrollEnabled={true} // Enable scrolling for FlatList
-        ListEmptyComponent={<ThemedText>{emptyText}</ThemedText>}
-      />
-    </ThemedView>
+    <FlatList
+      className="bg-background pt-4"
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
+      data={conversions}
+      keyExtractor={(item) => item.id!.toString()}
+      renderItem={({ item }) => (
+        <HistoryItem
+          fromValue={item.inputValue.toString()}
+          fromUnit={item.originalUnit}
+          toValue={item.outputValue.toString()}
+          toUnit={item.convertedUnit}
+          timeAgo={formatTimeAgo(item.timestamp)}
+          onPress={() => onConversionPress && onConversionPress(item)}
+          conversionType={item.conversionType}
+        />
+      )}
+      ItemSeparatorComponent={() => <View className="h-2" />}
+      onEndReached={infiniteScroll ? handleLoadMore : null} // Only enable onEndReached for infinite scroll
+      onEndReachedThreshold={0.5}
+      ListFooterComponent={renderFooter}
+      scrollEnabled={true} // Enable scrolling for FlatList
+      ListEmptyComponent={<ThemedText>{emptyText}</ThemedText>}
+    />
   );
 };

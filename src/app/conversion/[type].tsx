@@ -13,12 +13,7 @@ import { fetchCurrencyRates } from "@/conversions/converters/currency"; // Corre
 import { initDb, saveConversion } from "@/database/database"; // Updated import
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  ScrollView,
-  TouchableOpacity,
-  View,
-} from "react-native"; // Add ActivityIndicator, ScrollView
+import { ActivityIndicator, TouchableOpacity, View } from "react-native"; // Add ActivityIndicator, ScrollView
 import { ThemedText } from "../../components/themed-text"; // New import
 
 export default function ConversionScreen() {
@@ -178,7 +173,8 @@ export default function ConversionScreen() {
         }}
       />
       {dbInitialized ? (
-        <ScrollView className="flex-1 bg-background">
+        // <ScrollView className="flex-1 bg-background">
+        <>
           <View className="mt-4">
             <View className="flex flex-col gap-2 relative">
               <ConversionCard
@@ -251,7 +247,8 @@ export default function ConversionScreen() {
               // TODO: Optionally navigate back to this screen with pre-filled values
             }}
           />
-        </ScrollView>
+          {/* </ScrollView> */}
+        </>
       ) : (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#007bff" />

@@ -29,7 +29,7 @@ export default function HomeScreen() {
   return (
     <>
       <AppHeader title="Unit Swap" />
-      <ThemedView className="px-4 pt-4">
+      <ThemedView>
         <ScrollView
           className="flex-1 bg-background"
           contentContainerStyle={{ paddingBottom: 20 }}

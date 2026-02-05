@@ -2,15 +2,30 @@ import * as SQLite from "expo-sqlite";
 
 const DATABASE_NAME = "conversions.db";
 let _db: SQLite.SQLiteDatabase | null = null; // Declare a module-level variable to hold the database instance
+let _dbPromise: Promise<SQLite.SQLiteDatabase> | null = null; // Promise to hold the database opening operation
 
 export const getDb = async () => {
-  console.log("getDb called. Current _db: ", _db ? "initialized" : "null");
+  console.log(
+    "getDb called. Current _db: ",
+    _db ? "initialized" : "null",
+    ", _dbPromise: ",
+    _dbPromise ? "pending/resolved" : "null",
+  );
+
   if (_db) {
     return _db;
   }
-  console.log("Opening database: ", DATABASE_NAME);
-  _db = await SQLite.openDatabaseAsync(DATABASE_NAME);
-  console.log("Database opened. _db: ", _db ? "initialized" : "null");
+
+  if (!_dbPromise) {
+    console.log("Initiating database opening: ", DATABASE_NAME);
+    _dbPromise = SQLite.openDatabaseAsync(DATABASE_NAME);
+  }
+
+  _db = await _dbPromise;
+  console.log(
+    "Database opened (or retrieved). _db: ",
+    _db ? "initialized" : "null",
+  );
   return _db;
 };
 

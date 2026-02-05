@@ -17,7 +17,7 @@ export const Colors = {
     background: "#101622",
     tint: "#0a7ea4",
     icon: "#ffffff",
-    border: "#1d293d",
+    border: "#ffffff1a",
     tabIconDefault: "#ECEDEE80",
     tabIconSelected: "#0a7ea4",
     card: "#192545",

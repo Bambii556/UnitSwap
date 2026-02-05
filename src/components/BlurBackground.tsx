@@ -1,51 +1,45 @@
 import { BlurTint, BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { StyleSheet, View, ViewProps } from "react-native";
+import { View, ViewProps } from "react-native";
 import { cn } from "../utils/cn";
 
-interface CardBackgroundProps extends ViewProps {
+interface BlurBackgroundProps extends ViewProps {
   intensity?: number;
   tint?: BlurTint;
   children?: React.ReactNode;
   className?: string;
 }
 
-export function CardBackground({
+export function BlurBackground({
   intensity = 5,
   tint = "dark",
   style,
   children,
   className,
   ...rest
-}: CardBackgroundProps) {
+}: BlurBackgroundProps) {
   return (
     <View
-      style={[styles.container, style]}
-      className={cn("bg-gray-800", className)}
+      className={cn(
+        "rounded-2xl overflow-hidden border border-white/10 bg-gray-800",
+        className,
+      )}
+      style={style}
       {...rest}
     >
       <LinearGradient
         colors={["rgba(40, 40, 91, 0.05)", "rgba(16, 17, 43, 0.419)"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
-        style={StyleSheet.absoluteFill}
+        className="absolute inset-0"
       />
       <BlurView
         intensity={intensity}
         tint={tint}
-        style={StyleSheet.absoluteFill}
+        className="absolute inset-0"
       />
       {children}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    borderRadius: 16,
-    overflow: "hidden",
-    borderWidth: 1, // Add a subtle border
-    borderColor: "rgba(255,255,255,0.1)", // Light border color
-  },
-});
