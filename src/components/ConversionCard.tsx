@@ -1,4 +1,6 @@
+import { Colors } from "@/constants/theme";
 import { CategoryType, UnitKey } from "@/conversions";
+import { cn } from "@/utils/cn";
 import React from "react";
 import { TextInput, View } from "react-native";
 import { ThemedText } from "./themed-text";
@@ -12,7 +14,7 @@ interface ConversionCardProps {
   onUnitChange: (unitKey: UnitKey) => void;
   currentCategory: CategoryType;
   editable?: boolean;
-  cardClassName?: string; // For variations like border color
+  primary: boolean; // For variations like border color
 }
 
 const ConversionCard: React.FC<ConversionCardProps> = ({
@@ -23,13 +25,36 @@ const ConversionCard: React.FC<ConversionCardProps> = ({
   onUnitChange,
   currentCategory,
   editable = false,
-  cardClassName = "border-transparent", // Default for TO card
+  primary = false,
 }) => {
+  const formatConvertedValue = (val: string): string => {
+    const num = parseFloat(val);
+    if (isNaN(num)) return val;
+    if (num % 1 === 0) {
+      return num.toFixed(0);
+    } else {
+      // This removes trailing zeros, e.g., 3.100 -> 3.1
+      return num.toString();
+    }
+  };
   return (
-    <View className={`bg-card rounded-xl p-5 shadow-sm ${cardClassName}`}>
-      <View className="flex justify-between items-center mb-1">
+    <View
+      className={cn(
+        "bg-card rounded-xl p-5 h-[110px]",
+        editable
+          ? primary
+            ? "border-2 border-primary"
+            : "border-border"
+          : "border-2 border-primary",
+      )}
+    >
+      {/* Title and Unit Picker Row */}
+      <View className="flex flex-row justify-between items-center mb-1">
         <ThemedText
-          className={`text-xs font-bold uppercase tracking-wider "text-muted"`}
+          className={cn(
+            "text-xs font-bold uppercase tracking-wider",
+            primary ? "text-primary" : "text-muted",
+          )}
         >
           {title}
         </ThemedText>
@@ -38,23 +63,27 @@ const ConversionCard: React.FC<ConversionCardProps> = ({
             selectedValue={unit}
             onValueChange={onUnitChange}
             units={currentCategory.units}
-            label={`${title} Unit`}
           />
         )}
       </View>
-      <View className="flex items-baseline overflow-hidden">
-        <TextInput
-          className="flex-1 text-4xl md:text-5xl font-bold tracking-tight text-text"
-          placeholder="0"
-          placeholderTextColor="#8a8a8e"
-          keyboardType="numeric"
-          value={value}
-          onChangeText={onValueChange}
-          editable={editable}
-        />
-        <ThemedText className="ml-2 text-xl font-medium text-muted">
-          {currentCategory.units[unit]?.symbol}
-        </ThemedText>
+
+      {/* Conversion Value */}
+      <View className="flex flex-row justify-start items-baseline overflow-hidden gap-1">
+        <View className="flex flex-row items-baseline">
+          <TextInput
+            className="text-4xl md:text-5xl font-bold tracking-tight text-text"
+            placeholder="0"
+            placeholderTextColor={Colors.dark.text}
+            keyboardType="numeric"
+            value={formatConvertedValue(value)}
+            onChangeText={onValueChange}
+            editable={editable}
+            selectTextOnFocus={true}
+          />
+          <ThemedText className="text-xl font-medium text-muted">
+            {currentCategory.units[unit]?.symbol}
+          </ThemedText>
+        </View>
       </View>
     </View>
   );

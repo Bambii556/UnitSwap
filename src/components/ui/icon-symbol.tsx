@@ -23,15 +23,18 @@ const MAPPING = {
   "thermometer.sun.fill": "thermostat",
   "drop.fill": "water-drop",
   "square.fill.and.line.vertical.and.line.horizontal": "crop-square",
-  "coloncurrencysign.circle.fill": "payments",
-  speedometer: "speed",
-  "hourglass.bottomhalf.fill": "hourglass-empty",
+  "coloncurrencysign.circle.fill": "payments", // From categories.ts
+  speedometer: "speed", // From categories.ts
+  "hourglass.bottomhalf.fill": "hourglass-empty", // From categories.ts
   "arrow.up.arrow.down": "swap-vert",
   "paperplane.fill": "send",
   "chevron.left.forwardslash.chevron.right": "code",
   "chevron.right": "chevron-right",
   "chevron.down": "expand-more",
   "delete.left": "backspace", // Changed to 'backspace' Material Icon
+  "questionmark.circle.fill": "help", // Added default icon for CategoryIcon
+  "thermometer.medium.slash.fill": "thermostat", // From categories.ts
+  memorychip: "memory", // From categories.ts
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;

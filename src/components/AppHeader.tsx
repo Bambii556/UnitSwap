@@ -5,15 +5,13 @@ import { ThemedText } from "../components/themed-text";
 
 interface AppHeaderProps {
   title: string;
-  onHistoryPress?: () => void;
-  onSettingsPress?: () => void;
+  // onHistoryPress?: () => void;
   onBackPress?: () => void;
 }
 
 export function AppHeader({
   title,
-  onHistoryPress,
-  onSettingsPress,
+  // onHistoryPress,
   onBackPress,
 }: AppHeaderProps) {
   return (
@@ -36,9 +34,9 @@ export function AppHeader({
         </ThemedText>
       </View>
       <View>
-        <TouchableOpacity onPress={onHistoryPress}>
+        {/* <TouchableOpacity onPress={onHistoryPress}>
           <IconSymbol name="arrow.counterclockwise" color="white" size={28} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   );

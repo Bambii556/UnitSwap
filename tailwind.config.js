@@ -1,3 +1,4 @@
+import { Colors } from "./src/constants/theme";
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -10,14 +11,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: "#135bec",
-        background: "#101622",
-        border: "#2e2f34",
-        text: "#ECEDEE",
-        card: "#1e1f23",
-        icon: "#ffffff",
-        muted: "#8a8a8e",
-        active: "#0a7ea4",
+        primary: Colors.dark.primary,
+        background: Colors.dark.background,
+        border: Colors.dark.border,
+        text: Colors.dark.text,
+        card: Colors.dark.card,
+        icon: Colors.dark.icon,
+        muted: Colors.dark.muted,
+        active: Colors.dark.tint,
       },
       fontFamily: {
         display: ["Inter"],

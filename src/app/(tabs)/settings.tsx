@@ -1,11 +1,24 @@
+import { AppHeader } from "@/components/AppHeader";
+import { ThemedView } from "@/components/themed-view";
 import React from "react";
-import { View } from "react-native";
+import { ScrollView } from "react-native";
 import { ThemedText } from "../../components/themed-text";
 
 export default function SettingsScreen() {
   return (
-    <View className="flex-1 items-center justify-center bg-background">
-      <ThemedText className="text-text text-2xl">Settings Screen</ThemedText>
-    </View>
+    <>
+      <AppHeader title="Settings" />
+      <ThemedView className="px-4 pt-4 flex-1">
+        <ScrollView
+          className="flex-1 bg-background"
+          contentContainerStyle={{ paddingBottom: 20 }}
+        >
+          <ThemedText type="title" className="mb-4">
+            Settings Screen
+          </ThemedText>
+          {/* Add settings options here */}
+        </ScrollView>
+      </ThemedView>
+    </>
   );
 }

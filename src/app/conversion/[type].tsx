@@ -1,6 +1,7 @@
 import { AppHeader } from "@/components/AppHeader";
 import ConversionCard from "@/components/ConversionCard"; // New import
-import { RecentConversionList } from "@/components/RecentConversionList"; // New import
+import { HistoryList } from "@/components/HistoryList"; // New import
+import { ThemedView } from "@/components/themed-view"; // New import
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import {
   CategoryKey,
@@ -12,16 +13,28 @@ import { fetchCurrencyRates } from "@/conversions/converters/currency"; // Corre
 import { initDb, saveConversion } from "@/database/database"; // Updated import
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ScrollView, TouchableOpacity, View } from "react-native"; // Add FlatList
+import {
+  ActivityIndicator,
+  ScrollView,
+  TouchableOpacity,
+  View,
+} from "react-native"; // Add ActivityIndicator, ScrollView
 import { ThemedText } from "../../components/themed-text"; // New import
 
 export default function ConversionScreen() {
   const { type } = useLocalSearchParams();
+  const [dbInitialized, setDbInitialized] = useState(false);
 
   useEffect(() => {
-    initDb().catch((error) =>
-      console.error("Failed to initialize database", error),
-    );
+    const initializeDatabase = async () => {
+      try {
+        await initDb();
+        setDbInitialized(true);
+      } catch (error) {
+        console.error("Failed to initialize database", error);
+      }
+    };
+    initializeDatabase();
   }, []);
   const router = useRouter();
 
@@ -157,94 +170,94 @@ export default function ConversionScreen() {
   ]);
 
   return (
-    <View className="flex-1 bg-background text-text">
+    <ThemedView className="px-4 pt-4 flex-1">
       <AppHeader
         title={currentCategory.name}
         onBackPress={() => {
           router.back();
         }}
-        onHistoryPress={() => {
-          router.push("/(tabs)/history");
-        }}
-        onSettingsPress={() => {
-          router.push("/(tabs)/settings");
-        }}
       />
-      <ScrollView className="flex-1 px-4 py-4">
-        <View className="flex flex-col gap-2 relative">
-          <ConversionCard
-            key="from-card"
-            title="FROM"
-            value={fromValue}
-            onValueChange={setFromValue}
-            unit={fromUnit}
-            onUnitChange={(newFromUnit) => {
-              if (newFromUnit === toUnit) {
-                // If the selected 'from' unit is the same as 'to' unit, swap them
-                setFromUnit(newFromUnit);
-                setToUnit(fromUnit);
-                setFromValue(toValue);
-                setToValue(fromValue);
-              } else {
-                setFromUnit(newFromUnit);
-              }
-            }}
+      {dbInitialized ? (
+        <ScrollView className="flex-1 bg-background">
+          <View className="mt-4">
+            <View className="flex flex-col gap-2 relative">
+              <ConversionCard
+                key="from-card"
+                title="FROM"
+                value={fromValue}
+                onValueChange={setFromValue}
+                unit={fromUnit}
+                onUnitChange={(newFromUnit) => {
+                  if (newFromUnit === toUnit) {
+                    setFromUnit(newFromUnit);
+                    setToUnit(fromUnit);
+                    setFromValue(toValue);
+                    setToValue(fromValue);
+                  } else {
+                    setFromUnit(newFromUnit);
+                  }
+                }}
+                currentCategory={currentCategory}
+                editable={true}
+                primary={true}
+              />
+
+              {/* Swap Button */}
+              <TouchableOpacity
+                className="flex size-16 cursor-pointer items-center justify-center rounded-full bg-primary text-icon shadow-lg shadow-primary/30 border-4 border-background active:scale-95 transition-transform -my-5 z-10 self-center"
+                onPress={handleSwapPress}
+              >
+                <IconSymbol
+                  name="arrow.up.arrow.down"
+                  size={30}
+                  color="text-icon"
+                />
+              </TouchableOpacity>
+
+              <ConversionCard
+                key="to-card"
+                title="TO"
+                value={toValue}
+                unit={toUnit}
+                onUnitChange={(newToUnit) => {
+                  if (newToUnit === fromUnit) {
+                    setToUnit(newToUnit);
+                    setFromUnit(toUnit);
+                    setFromValue(toValue);
+                    setToValue(fromValue);
+                  } else {
+                    setToUnit(newToUnit);
+                  }
+                }}
+                currentCategory={currentCategory}
+                editable={false}
+                primary={false}
+              />
+            </View>
+
+            <View className="mt-6">
+              <ThemedText className="text-text text-xl font-bold">
+                Recent {currentCategory.name} Conversions
+              </ThemedText>
+            </View>
+          </View>
+          <HistoryList
+            listType="category"
+            categoryKey={categoryKey}
             currentCategory={currentCategory}
-            editable={true}
-            cardClassName="border-2 border-primary"
-          />
-
-          {/* Swap Button */}
-          <TouchableOpacity
-            className="flex size-16 cursor-pointer items-center justify-center rounded-full bg-primary text-icon shadow-lg shadow-primary/30 border-4 border-background active:scale-95 transition-transform -my-5 z-10 self-center"
-            onPress={handleSwapPress}
-          >
-            <IconSymbol
-              name="arrow.up.arrow.down"
-              size={30}
-              color="text-icon"
-            />
-          </TouchableOpacity>
-
-          <ConversionCard
-            key="to-card"
-            title="TO"
-            value={toValue}
-            unit={toUnit}
-            onUnitChange={(newToUnit) => {
-              if (newToUnit === fromUnit) {
-                // If the selected 'to' unit is the same as 'from' unit, swap them
-                setToUnit(newToUnit);
-                setFromUnit(toUnit);
-                setFromValue(toValue);
-                setToValue(fromValue);
-              } else {
-                setToUnit(newToUnit);
-              }
+            refreshTrigger={refreshTrigger}
+            onConversionPress={(item) => {
+              console.log("Tapped on category conversion:", item);
+              // TODO: Optionally navigate back to this screen with pre-filled values
             }}
-            currentCategory={currentCategory}
-            editable={false}
-            cardClassName="border-2 border-border"
           />
+        </ScrollView>
+      ) : (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#007bff" />
+          <ThemedText className="mt-4">Loading conversions...</ThemedText>
         </View>
-
-        <View className="mt-6">
-          <ThemedText className="text-text text-xl font-bold">
-            Recent {currentCategory.name} Conversions
-          </ThemedText>
-        </View>
-
-        <RecentConversionList
-          listType="category"
-          categoryKey={categoryKey}
-          currentCategory={currentCategory}
-          refreshTrigger={refreshTrigger}
-          onConversionPress={(item) => {
-            console.log("Tapped on category conversion:", item);
-            // TODO: Optionally navigate back to this screen with pre-filled values
-          }}
-        />
-      </ScrollView>
-    </View>
+      )}
+    </ThemedView>
   );
 }

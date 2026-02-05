@@ -1,16 +1,18 @@
 import { AppHeader } from "@/components/AppHeader";
 import { CategoryCard } from "@/components/CategoryCard";
-import { RecentConversionList } from "@/components/RecentConversionList"; // Corrected import
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Conversion } from "@/database/database"; // Added for onConversionPress typing
+import { RecentConversions } from "@/components/RecentConversions";
+import { SearchBar } from "@/components/SearchBar"; // Import SearchBar
+import { ThemedView } from "@/components/themed-view";
+import { Conversion } from "@/database/database";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { ScrollView, TextInput, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { ThemedText } from "../../components/themed-text";
 import { ALL_CATEGORIES } from "../../constants/categories";
 
 export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showAllCategories, setShowAllCategories] = useState(false); // New state for toggling categories visibility
   const router = useRouter();
 
   const filteredCategories = ALL_CATEGORIES.filter((category) => {
@@ -25,67 +27,82 @@ export default function HomeScreen() {
   });
 
   return (
-    <ScrollView
-      className="flex-1 bg-background"
-      contentContainerStyle={{ paddingBottom: 20 }}
-    >
-      <AppHeader
-        title="Converter"
-        onHistoryPress={() => router.push("/(tabs)/history")}
-      />
+    <>
+      <AppHeader title="Unit Swap" />
+      <ThemedView className="px-4 pt-4">
+        <ScrollView
+          className="flex-1 bg-background"
+          contentContainerStyle={{ paddingBottom: 20 }}
+        >
+          {/* Introduction */}
+          <View className="justify-center items-center gap-2 mb-4">
+            <ThemedText type="title" className="">
+              What are we converting today?
+            </ThemedText>
+            <ThemedText type="muted">
+              Type any unit to start converting
+            </ThemedText>
+          </View>
 
-      {/* Search Bar */}
-      <View className="mx-4 mt-4 flex-row items-center rounded-lg p-3 bg-muted/30">
-        <IconSymbol name="magnifyingglass" color="text-icon" size={20} />
-        <TextInput
-          className="ml-2 flex-1 text-text"
-          placeholder="Search units (e.g., meters to feet)"
-          placeholderTextColor="#8a8a8e"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-      </View>
+          {/* Search Bar */}
+          <View className="mx-4 mt-4">
+            <SearchBar
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              onSearch={() => {
+                /* Filtering is handled by state change, no explicit action needed here */
+              }}
+              placeholder="Search units (e.g., meters to feet)"
+            />
+          </View>
 
-      <View className="mt-6 px-4">
-        <ThemedText className="text-text text-xl font-bold">
-          Categories
-        </ThemedText>
-      </View>
+          <View className="mt-6 px-4 flex-row justify-between items-center">
+            <ThemedText className="text-text text-xl font-bold">
+              Categories
+            </ThemedText>
+            {filteredCategories.length > 4 && (
+              <Pressable
+                onPress={() => setShowAllCategories(!showAllCategories)}
+              >
+                <ThemedText className="text-blue-500 text-lg">
+                  {showAllCategories ? "Show Less" : "See All"}
+                </ThemedText>
+              </Pressable>
+            )}
+          </View>
 
-      {/* Categories Grid - Placeholder for now */}
-      <View className="mt-4 px-4 flex-row flex-wrap justify-between gap-y-4">
-        {filteredCategories.map((category) => (
-          <CategoryCard
-            key={category.name}
-            title={category.name}
-            units={category.units}
-            icon={category.icon as any}
-            color={category.color}
-            onPress={() =>
-              router.push({
-                pathname: "/conversion/[type]",
-                params: { type: category.name },
-              })
-            }
-          />
-        ))}
-      </View>
+          {/* Categories Grid */}
+          <View className="mt-4 px-4 flex-row flex-wrap justify-between gap-4">
+            {(showAllCategories
+              ? filteredCategories
+              : filteredCategories.slice(0, 4)
+            ).map((category) => (
+              <CategoryCard
+                key={category.name}
+                title={category.name}
+                units={category.units}
+                color={category.color}
+                onPress={() =>
+                  router.push({
+                    pathname: "/conversion/[type]",
+                    params: { type: category.name },
+                  })
+                }
+              />
+            ))}
+          </View>
 
-      <View className="mt-6 px-4">
-        <ThemedText className="text-text text-xl font-bold">
-          Recent Conversions
-        </ThemedText>
-      </View>
-
-      {/* Recent Conversions List */}
-      <RecentConversionList
-        listType="all"
-        itemsPerPage={10}
-        onConversionPress={(item: Conversion) => {
-          console.log("Tapped on recent conversion:", item);
-          // TODO: Implement navigation to conversion screen with pre-filled values
-        }}
-      />
-    </ScrollView>
+          {/* Latest Conversions */}
+          <View className="mt-4 px-4">
+            <RecentConversions
+              onConversionPress={(item: Conversion) => {
+                console.log("Tapped on latest conversion:", item);
+                // TODO: Implement navigation to conversion screen with pre-filled values
+              }}
+            />
+          </View>
+        </ScrollView>
+      </ThemedView>
+    </>
   );
 }

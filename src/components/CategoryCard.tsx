@@ -1,12 +1,12 @@
-import { IconSymbol, IconSymbolName } from "@/components/ui/icon-symbol";
 import React from "react";
-import { TouchableOpacity, View } from "react-native";
+import { TouchableOpacity } from "react-native";
 import { ThemedText } from "../components/themed-text";
+import { CardBackground } from "./CardBackground";
+import { CategoryIcon } from "./CategoryIcon"; // Import CategoryIcon
 
 interface CategoryCardProps {
   title: string;
   units: string;
-  icon: IconSymbolName;
   color: string;
   onPress?: () => void;
 }
@@ -14,39 +14,36 @@ interface CategoryCardProps {
 export function CategoryCard({
   title,
   units,
-  icon,
   color,
   onPress,
 }: CategoryCardProps) {
   return (
     <TouchableOpacity
-      className="w-[120px] h-[120px] rounded-xl overflow-hidden p-3 items-center justify-center gap-y-1 bg-card shadow-md border-2 border-border"
+      className="w-[48%] aspect-square rounded-xl"
       onPress={onPress}
     >
-      <View
-        className="w-10 h-10 items-center justify-center rounded-lg"
-        style={{ backgroundColor: color + "20" }}
-      >
-        <IconSymbol name={icon} size={24} color={color} />
-      </View>
-      <View>
+      <CardBackground className="flex-1 p-3 flex flex-col items-center justify-center gap-y-2">
+        <CategoryIcon
+          categoryName={title}
+          containerSize={45}
+          size={26}
+          backgroundColor={color + "20"}
+        />
         <ThemedText
-          className="text-text text-base font-bold mt-2"
+          className="text-text text-base font-bold text-center mt-2"
           numberOfLines={2}
           ellipsizeMode="tail"
         >
           {title}
         </ThemedText>
-      </View>
-      <View>
         <ThemedText
-          className="text-muted text-xs opacity-60 mt-1"
-          numberOfLines={2}
+          className="text-gray-400 text-xs text-center mt-1"
+          numberOfLines={1} // Changed from 2 to 1
           ellipsizeMode="tail"
         >
           {units}
         </ThemedText>
-      </View>
+      </CardBackground>
     </TouchableOpacity>
   );
 }

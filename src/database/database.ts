@@ -1,13 +1,23 @@
 import * as SQLite from "expo-sqlite";
 
 const DATABASE_NAME = "conversions.db";
+let _db: SQLite.SQLiteDatabase | null = null; // Declare a module-level variable to hold the database instance
 
 export const getDb = async () => {
-  return await SQLite.openDatabaseAsync(DATABASE_NAME);
+  console.log("getDb called. Current _db: ", _db ? "initialized" : "null");
+  if (_db) {
+    return _db;
+  }
+  console.log("Opening database: ", DATABASE_NAME);
+  _db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+  console.log("Database opened. _db: ", _db ? "initialized" : "null");
+  return _db;
 };
 
 export const initDb = async () => {
+  console.log("initDb called.");
   const db = await getDb();
+  console.log("initDb: Database instance obtained. Executing CREATE TABLE...");
   // Create the conversions table if it doesn't exist
   await db.execAsync(
     `CREATE TABLE IF NOT EXISTS conversions (
@@ -20,6 +30,7 @@ export const initDb = async () => {
       timestamp INTEGER NOT NULL
     );`,
   );
+  console.log("initDb: CREATE TABLE command executed.");
 };
 
 export interface Conversion {

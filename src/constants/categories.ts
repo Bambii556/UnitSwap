@@ -1,4 +1,12 @@
-export const ALL_CATEGORIES = [
+export interface Category {
+  name: string;
+  units: string;
+  fullNames: string[];
+  icon: string;
+  color: string;
+}
+
+export const ALL_CATEGORIES: Category[] = [
   {
     name: "Length",
     units: "m, ft, in, km, mi, cm, mm, yd, nmi",
