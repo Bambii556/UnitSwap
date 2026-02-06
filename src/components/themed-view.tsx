@@ -7,9 +7,6 @@ export type ThemedViewProps = ViewProps & {
 
 export function ThemedView({ className, ...allProps }: ThemedViewProps) {
   return (
-    <View
-      className={cn("flex-1 bg-background px-4 pt-4", className)}
-      {...allProps}
-    />
+    <View className={cn("flex-1 bg-background", className)} {...allProps} />
   );
 }

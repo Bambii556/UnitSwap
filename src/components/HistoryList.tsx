@@ -113,9 +113,13 @@ export const HistoryList: React.FC<HistoryListProps> = ({
 
         if (append) {
           setConversions((prev) => {
-            const newConversions = [...prev, ...fetchedConversions];
+            const existingIds = new Set(prev.map((item) => item.id));
+            const uniqueNewConversions = fetchedConversions.filter(
+              (item) => !existingIds.has(item.id),
+            );
+            const newConversions = [...prev, ...uniqueNewConversions];
             console.log(
-              `Appending: prev=${prev.length}, new=${fetchedConversions.length}, total=${newConversions.length}`,
+              `Appending: prev=${prev.length}, newUnique=${uniqueNewConversions.length}, total=${newConversions.length}`,
             );
             return newConversions;
           });
@@ -154,14 +158,13 @@ export const HistoryList: React.FC<HistoryListProps> = ({
     setHasMore(true); // Reset hasMore when searchTerm or categoryKey changes
     setCurrentPage(1); // Always start from page 1 for new searches/categories
     // Reset conversions to empty to avoid stale data
-    setConversions([]);
     fetchConversions(1); // Fetch first page
   }, [searchTerm, categoryKey, refreshTrigger]);
 
   const handleRefresh = useCallback(() => {
     console.log("handleRefresh triggered");
     setRefreshing(true);
-    setConversions([]); // Clear existing data
+    // Do not clear conversions immediately; let new data replace old once fetched
     setCurrentPage(1); // Reset to first page
     setHasMore(true); // Assume there's more data to fetch on refresh
     fetchConversions(1); // Fetch first page again
@@ -187,7 +190,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({
   const renderFooter = () => {
     if (!infiniteScroll || (!loadingMore && !loading)) return null;
     return (
-      <View className="py-4">
+      <View className="mb-[16px]">
         <ActivityIndicator size="small" color="#007bff" />
       </View>
     );
@@ -214,6 +217,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({
       ItemSeparatorComponent={() => <View className="h-2" />}
       onEndReached={infiniteScroll ? handleLoadMore : null} // Only enable onEndReached for infinite scroll
       onEndReachedThreshold={0.5}
+      ListFooterComponentStyle={{ marginBottom: 16 }} // Add some spacing at the bottom for the loading indicator
       ListFooterComponent={renderFooter}
       scrollEnabled={true} // Enable scrolling for FlatList
       ListEmptyComponent={<ThemedText>{emptyText}</ThemedText>}

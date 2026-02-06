@@ -22,7 +22,7 @@ export function CategoryCard({
       className="w-[48%] aspect-square rounded-xl"
       onPress={onPress}
     >
-      <BlurBackground className="flex-1 p-3 flex flex-col items-center justify-center gap-y-2">
+      <BlurBackground className="flex-1 p-3 flex flex-col items-center justify-center gap-y-2 bg-card">
         <CategoryIcon
           categoryName={title}
           containerSize={45}

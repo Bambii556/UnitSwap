@@ -19,6 +19,7 @@ module.exports = {
         icon: Colors.dark.icon,
         muted: Colors.dark.muted,
         active: Colors.dark.tint,
+        cardSecond: Colors.dark.cardSecond,
       },
       fontFamily: {
         display: ["Inter"],

@@ -16,18 +16,20 @@ export default function HistoryScreen() {
   }, []);
 
   return (
-    <ThemedView className="flex-1">
+    <ThemedView className="">
       <AppHeader title="Conversion History" />
 
       {/* Search Bar */}
-      <SearchBar
-        value={searchTerm}
-        onChangeText={setSearchTerm}
-        onSearch={() => {}}
-        placeholder="Search history..."
-      />
+      <View className="mx-4 mt-4">
+        <SearchBar
+          value={searchTerm}
+          onChangeText={setSearchTerm}
+          onSearch={() => {}}
+          placeholder="Search history..."
+        />
+      </View>
 
-      <View className="border-t-2 border-border mt-4">
+      <View className="border-t-2 border-border mt-4 mb-[30px]">
         <HistoryList
           listType="all"
           searchTerm={searchTerm}
