@@ -3,11 +3,12 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar } from "expo-status-bar";
+import { StatusBar } from "expo-status-bar"; // Keep StatusBar from expo-status-bar
 import React, { useEffect } from "react";
 import { Platform } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
+import { SettingsProvider, useSettings } from "../providers/SettingsProvider"; // Import SettingsProvider and useSettings
 
 const initializeDatabase = async () => {
   try {
@@ -44,20 +45,25 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style="light" />
-      <RootLayoutContent />
-      <React.Suspense fallback={null}>
-        <DatabaseInitializer />
-      </React.Suspense>
+      <SettingsProvider>
+        {/* Wrap with SettingsProvider */}
+        <RootLayoutContent />
+        <React.Suspense fallback={null}>
+          <DatabaseInitializer />
+        </React.Suspense>
+      </SettingsProvider>
     </SafeAreaProvider>
   );
 }
 
 function RootLayoutContent() {
   const router = useRouter();
+  const { colorScheme } = useSettings(); // Use useSettings to get the resolved color scheme
 
   return (
     <SafeAreaView className="flex-1 bg-background">
+      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+      {/* Apply colorScheme to StatusBar */}
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen

@@ -1,80 +1,82 @@
 import { Colors } from "@/constants/theme";
 import { CategoryType, UnitKey } from "@/conversions";
 import { cn } from "@/utils/cn";
-import React, { useRef } from "react";
-import { Pressable, TextInput, View } from "react-native";
+import React, { memo, useEffect, useRef, useState } from "react";
+import { Pressable, ScrollView, TextInput, View } from "react-native";
 import { ThemedText } from "./themed-text";
 import UnitPicker from "./UnitPicker";
 
 interface ConversionCardProps {
   title: "TO" | "FROM";
-  value: string;
-  onValueChange?: (text: string) => void;
+  displayedValue: string;
+  onChangeText: (text: string) => void;
   unit: UnitKey;
   onUnitChange: (unitKey: UnitKey) => void;
   currentCategory: CategoryType;
   editable?: boolean;
   primary: boolean; // For variations like border color
+  onFocus: () => void;
+  onBlur: () => void;
+  selection: { start: number; end: number };
+  onSelectionChange: (event: any) => void;
 }
 
-const ConversionCard: React.FC<ConversionCardProps> = ({
-  title,
-  value,
-  onValueChange,
-  unit,
-  onUnitChange,
-  currentCategory,
-  editable = false,
-  primary = false,
-}) => {
-  const textInputRef = useRef<TextInput>(null);
+const ConversionCard: React.FC<ConversionCardProps> = memo(
+  ({
+    title,
+    displayedValue,
+    onChangeText,
+    unit,
+    onUnitChange,
+    currentCategory,
+    editable = false,
+    primary = false,
+    onFocus,
+    onBlur,
+    selection,
+    onSelectionChange,
+  }) => {
+    const textInputRef = useRef<TextInput>(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [rawInputValue, setRawInputValue] = useState(displayedValue);
 
-  const handleCardPress = () => {
-    if (editable) {
-      textInputRef.current?.focus();
-    }
-  };
+    // Effect to focus TextInput when editing starts
+    useEffect(() => {
+      if (isEditing && textInputRef.current) {
+        setTimeout(() => {
+          textInputRef.current?.focus();
+        }, 100);
+      }
+      // When entering editing mode, initialize rawInputValue with the current displayedValue
+      if (isEditing) {
+        setRawInputValue(displayedValue);
+      }
+    }, [isEditing, displayedValue]);
 
-  const formatWithThousandsSeparator = (numStr: string): string => {
-    if (!numStr || isNaN(parseFloat(numStr))) {
-      return numStr;
-    }
-    const [integerPart, decimalPart] = numStr.split(".");
-    const formattedIntegerPart = integerPart.replace(
-      /\B(?=(\d{3})+(?!\d))/g,
-      " ",
-    );
-    return decimalPart
-      ? `${formattedIntegerPart}.${decimalPart}`
-      : formattedIntegerPart;
-  };
+    const handleDisplayPress = () => {
+      if (editable) {
+        console.log("Card Pressed, entering edit mode");
+        setIsEditing(true);
+        onFocus(); // Propagate focus
+      }
+    };
 
-  const handleValueChange = (text: string) => {
-    // Remove any non-numeric characters, including thousand separators
-    const cleanedText = text.replace(/[^\d.]/g, "");
-    // Allow empty string, or numbers with optional decimal point
-    const numericRegex = /^\d*\.?\d*$/;
-    if (numericRegex.test(cleanedText) || cleanedText === "") {
-      onValueChange?.(cleanedText);
-    }
-  };
+    const handleInputBlur = () => {
+      console.log("Input lost focus, exiting edit mode");
+      setIsEditing(false);
+      onBlur(); // Propagate original onBlur
+    };
 
-  const formatConvertedValue = (val: string): string => {
-    const num = parseFloat(val);
-    if (isNaN(num)) return val;
+    // Effect to clean the raw input and propagate changes when rawInputValue changes
+    useEffect(() => {
+      const cleanedValue = rawInputValue.replace(/[^0-9.]/g, "");
+      onChangeText(cleanedValue);
+    }, [rawInputValue]);
 
-    let formattedNumStr: string;
-    if (num % 1 === 0) {
-      formattedNumStr = num.toFixed(0);
-    } else {
-      // This removes trailing zeros, e.g., 3.100 -> 3.1
-      formattedNumStr = num.toString();
-    }
-    return formatWithThousandsSeparator(formattedNumStr);
-  };
-  return (
-    <Pressable onPress={handleCardPress}>
-      <View
+    return (
+      <PressableCard
+        isEditing={isEditing}
+        onPress={handleDisplayPress}
         className={cn(
           "bg-card rounded-xl p-5 h-[110px]",
           primary ? "border-2 border-primary" : "border-border",
@@ -101,27 +103,78 @@ const ConversionCard: React.FC<ConversionCardProps> = ({
         </View>
 
         {/* Conversion Value */}
-        <View className="flex flex-row justify-start items-baseline overflow-hidden gap-1">
-          <View className="flex flex-row items-baseline">
-            <TextInput
-              ref={textInputRef}
-              className="text-4xl md:text-5xl font-bold tracking-tight text-text"
-              placeholder="0"
-              placeholderTextColor={Colors.dark.text}
-              keyboardType="numeric"
-              value={formatConvertedValue(value)}
-              onChangeText={handleValueChange}
-              editable={editable}
-              selectTextOnFocus={true}
-            />
-            <ThemedText className="text-xl font-medium text-muted">
-              {currentCategory.units[unit]?.symbol}
-            </ThemedText>
-          </View>
+        <View className="flex flex-row justify-start items-baseline gap-1">
+          <HorizontalScroller>
+            <View className="flex-row items-baseline  flex-grow flex-shrink-0 min-w-0 h-full justify-start gap-1">
+              {editable && isEditing ? (
+                <TextInput
+                  ref={textInputRef}
+                  className="text-4xl md:text-5xl font-bold tracking-tight text-text flex-grow flex-shrink-0 min-w-0 py-0 leading-none"
+                  placeholder="0"
+                  placeholderTextColor={Colors.dark.text}
+                  keyboardType="numeric"
+                  value={rawInputValue || "0"}
+                  onChangeText={setRawInputValue}
+                  scrollEnabled={false}
+                  editable={editable}
+                  multiline={false}
+                  onFocus={onFocus} // Propagate original onFocus
+                  onBlur={handleInputBlur} // Use new blur handler
+                  selection={selection}
+                  onSelectionChange={onSelectionChange}
+                />
+              ) : (
+                <ThemedText className="text-4xl md:text-5xl font-bold tracking-tight text-text flex-grow flex-shrink-0 min-w-0 py-0 leading-none">
+                  {displayedValue || "0"}
+                </ThemedText>
+              )}
+              <ThemedText className="text-xl font-medium text-muted">
+                {currentCategory.units[unit]?.symbol}
+              </ThemedText>
+            </View>
+          </HorizontalScroller>
         </View>
-      </View>
+      </PressableCard>
+    );
+  },
+);
+
+function HorizontalScroller({ children }: { children: React.ReactNode }) {
+  return (
+    <ScrollView
+      horizontal={true}
+      showsHorizontalScrollIndicator={false}
+      className="flex-1"
+      contentContainerStyle={{
+        flexDirection: "row",
+        alignItems: "baseline",
+      }}
+      onStartShouldSetResponder={() => true} // Allows ScrollView to claim touches for scrolling
+    >
+      {children}
+    </ScrollView>
+  );
+}
+
+function PressableCard({
+  isEditing,
+  children,
+  onPress,
+  className,
+}: {
+  isEditing: boolean;
+  children: React.ReactNode;
+  onPress: () => void;
+  className?: string;
+}) {
+  if (isEditing) {
+    return <View className={className}>{children}</View>;
+  }
+  return (
+    <Pressable onPress={onPress} className={className}>
+      {children}
     </Pressable>
   );
-};
+}
 
 export default ConversionCard;

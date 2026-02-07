@@ -33,7 +33,7 @@ export const initDb = async () => {
   console.log("initDb called.");
   const db = await getDb();
   console.log("initDb: Database instance obtained. Executing CREATE TABLE...");
-  // Create the conversions table if it doesn't exist
+  // Create the conversions table if it doesn&#x27;t exist
   await db.execAsync(
     `CREATE TABLE IF NOT EXISTS conversions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -140,4 +140,10 @@ export const searchConversions = async (
 
   const allRows = await db.getAllAsync<Conversion>(query + ";", params);
   return allRows;
+};
+
+export const clearAllConversions = async () => {
+  const db = await getDb();
+  await db.runAsync(`DELETE FROM conversions;`);
+  console.log("All conversions cleared from database.");
 };
