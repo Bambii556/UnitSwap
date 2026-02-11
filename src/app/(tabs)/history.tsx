@@ -24,7 +24,6 @@ export default function HistoryScreen() {
         <SearchBar
           value={searchTerm}
           onChangeText={setSearchTerm}
-          onSearch={() => {}}
           placeholder="Search history..."
         />
       </View>

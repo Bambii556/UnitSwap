@@ -1,28 +1,35 @@
+import { useAppTheme } from "@/providers/ThemeProvider";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Pressable, TextInput, View } from "react-native";
-import { useAppTheme } from "@/providers/ThemeProvider";
+import {
+  BlurEvent,
+  FocusEvent,
+  Pressable,
+  TextInput,
+  View,
+} from "react-native";
 
 interface SearchBarProps {
-  onSearch: (query: string) => void;
   onVoiceSearch?: () => void;
   placeholder?: string;
   value: string;
   onChangeText: (text: string) => void;
+  onFocus?: (e: FocusEvent) => void;
+  onBlur?: (e: BlurEvent) => void;
 }
 
 export function SearchBar({
-  onSearch,
-  onVoiceSearch,
   placeholder = "Convert anything...",
   value,
   onChangeText,
+  onFocus,
+  onBlur,
 }: SearchBarProps) {
   const { colors } = useAppTheme();
 
   return (
-    <View className="flex-row items-center rounded-2xl bg-card px-4 py-3">
-      <Pressable onPress={() => onSearch(value)} className="pr-2">
+    <View className="flex-row items-center rounded-2xl bg-card px-4 py-3 border border-border">
+      <Pressable onPress={() => {}} className="pr-2">
         <Ionicons name="search" size={20} color={colors.muted || colors.icon} />
       </Pressable>
       <TextInput
@@ -31,14 +38,20 @@ export function SearchBar({
         placeholderTextColor={colors.muted || colors.icon}
         value={value}
         onChangeText={onChangeText}
+        onFocus={onFocus}
+        onBlur={onBlur}
         returnKeyType="search"
-        onSubmitEditing={() => onSearch(value)}
       />
-      {onVoiceSearch && (
+      {value.length > 0 && (
+        <Pressable onPress={() => onChangeText("")} className="pl-2">
+          <Ionicons name="close-circle" size={20} color={colors.muted} />
+        </Pressable>
+      )}
+      {/* {onVoiceSearch && (
         <Pressable onPress={onVoiceSearch} className="pl-2">
           <Ionicons name="mic" size={20} color={colors.muted || colors.icon} />
         </Pressable>
-      )}
+      )} */}
     </View>
   );
 }

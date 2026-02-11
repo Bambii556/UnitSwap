@@ -4,15 +4,8 @@ import { useAppTheme } from "@/providers/ThemeProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-
-
+import { ScrollView, TouchableOpacity, View } from "react-native";
+import { SearchBar } from "./SearchBar";
 
 interface SearchResult {
   unitKey: string;
@@ -73,7 +66,7 @@ export function SearchableSearchBar({
       (unit) =>
         unit.fullName.toLowerCase().includes(lowerQuery) ||
         unit.symbol.toLowerCase().includes(lowerQuery) ||
-        unit.categoryName.toLowerCase().includes(lowerQuery)
+        unit.categoryName.toLowerCase().includes(lowerQuery),
     );
   }, [searchQuery, allUnits]);
 
@@ -91,33 +84,16 @@ export function SearchableSearchBar({
   return (
     <View className="relative z-50">
       {/* Search Input */}
-      <View className="flex-row items-center rounded-2xl bg-card px-4 py-3 border border-border">
-        <Pressable onPress={() => {}} className="pr-2">
-          <Ionicons
-            name="search"
-            size={20}
-            color={colors.muted || colors.icon}
-          />
-        </Pressable>
-        <TextInput
-          className="flex-1 text-base text-text"
-          placeholder={placeholder}
-          placeholderTextColor={colors.muted || colors.icon}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => {
-            // Delay to allow press events to fire first
-            setTimeout(() => setIsFocused(false), 200);
-          }}
-          returnKeyType="search"
-        />
-        {searchQuery.length > 0 && (
-          <Pressable onPress={() => setSearchQuery("")} className="pl-2">
-            <Ionicons name="close-circle" size={20} color={colors.muted} />
-          </Pressable>
-        )}
-      </View>
+      <SearchBar
+        placeholder="Search units (e.g., meters to feet)"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => {
+          // Delay to allow press events to fire first
+          setTimeout(() => setIsFocused(false), 200);
+        }}
+      />
 
       {/* Dropdown Results */}
       {showDropdown && (
