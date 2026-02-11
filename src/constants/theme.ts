@@ -24,10 +24,10 @@ export const Theme: ThemeColors = {
     background: "#fff",
     tint: "#0a7ea4",
     icon: "#687076",
-    border: "#ffffff1a",
     tabIconDefault: "#687076",
     tabIconSelected: "#0a7ea4",
-    card: "#F0F2F4" + "80",
+    card: "#F0F2F4",
+    border: "#E0E2E4", // Added border color for light theme
     muted: "#8a8a8e",
     cardSecond: "#E0E2E4",
   },

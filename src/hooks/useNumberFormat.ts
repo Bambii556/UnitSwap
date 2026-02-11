@@ -46,7 +46,7 @@ export function formatNumberValue(
     if (useFullPrecision) {
       formatOptions.maximumFractionDigits = 20;
     } else if (decimalPlaces >= 0) {
-      formatOptions.minimumFractionDigits = decimalPlaces;
+      // Only set maximum, not minimum, so trailing zeros are removed
       formatOptions.maximumFractionDigits = decimalPlaces;
     } else {
       formatOptions.maximumFractionDigits = 20;
@@ -60,11 +60,6 @@ export function formatNumberValue(
       const desiredSeparator =
         thousandSeparator === " " ? "\u202F" : thousandSeparator;
       formatted = formatted.replace(/,/g, desiredSeparator);
-    }
-
-    // Remove trailing zeros if not using fixed decimal places
-    if (!useFullPrecision && decimalPlaces < 0 && formatted.includes(".")) {
-      formatted = formatted.replace(/\.?0+$/, "");
     }
 
     return formatted;
@@ -81,11 +76,8 @@ export function formatNumberValue(
   // No thousand separator - standard mode with decimal places
   if (decimalPlaces >= 0) {
     const fixed = num.toFixed(decimalPlaces);
-    // Remove trailing zeros if decimalPlaces is not 0
-    if (decimalPlaces > 0) {
-      return fixed.replace(/\.?0+$/, "");
-    }
-    return fixed;
+    // Remove trailing zeros and unnecessary decimal point
+    return fixed.replace(/\.?0+$/, "");
   }
 
   // Default: return as-is without grouping

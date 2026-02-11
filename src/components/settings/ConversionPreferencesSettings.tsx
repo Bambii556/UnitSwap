@@ -1,8 +1,8 @@
 import { useSettings } from "@/providers/SettingsProvider";
 import { cn } from "@/utils/cn";
-import { AppSettings, DEFAULT_SETTINGS } from "@/utils/settings";
+import { AppSettings } from "@/utils/settings";
 import React from "react";
-import { Pressable, TextInput, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { ThemedText } from "../themed-text";
 
 export const ConversionPreferencesSettings: React.FC = () => {
@@ -16,28 +16,43 @@ export const ConversionPreferencesSettings: React.FC = () => {
 
       <View className="flex-row items-center justify-between mb-4 p-2 bg-card rounded-md">
         <ThemedText className="text-text">Decimal Places</ThemedText>
-        <TextInput
-          className="text-text border border-border rounded-md px-3 py-1 w-20 text-right"
-          keyboardType="numeric"
-          value={settings.decimalPlaces.toString()}
-          onChangeText={(text: string) => {
-            const num = parseInt(text, 10);
-            if (!isNaN(num) && num >= 0 && num <= 10) {
-              // Limit decimal places between 0 and 10
-              updateSettings({ decimalPlaces: num });
-            } else if (text === "") {
-              // Allow empty string for temporary input clearing
-              // Optionally set to a default or keep previous valid
-            }
-          }}
-          onBlur={() => {
-            // If the input is empty on blur, revert to default or a valid number
-            if (settings.decimalPlaces.toString() === "") {
-              updateSettings({ decimalPlaces: DEFAULT_SETTINGS.decimalPlaces });
-            }
-          }}
-          maxLength={2} // Max 2 digits for 0-10
-        />
+        <View className="flex-row items-center">
+          <Pressable
+            onPress={() => {
+              if (settings.decimalPlaces > 0) {
+                updateSettings({ decimalPlaces: settings.decimalPlaces - 1 });
+              }
+            }}
+            disabled={settings.decimalPlaces <= 0}
+            className={`w-10 h-10 rounded-l-md items-center justify-center ${
+              settings.decimalPlaces <= 0 ? "bg-muted/20" : "bg-primary/20"
+            }`}
+          >
+            <ThemedText className={settings.decimalPlaces <= 0 ? "text-muted" : "text-primary font-bold"}>
+              −
+            </ThemedText>
+          </Pressable>
+          <View className="w-14 h-10 items-center justify-center bg-card border-y border-border">
+            <ThemedText className="text-text font-semibold text-lg">
+              {settings.decimalPlaces}
+            </ThemedText>
+          </View>
+          <Pressable
+            onPress={() => {
+              if (settings.decimalPlaces < 10) {
+                updateSettings({ decimalPlaces: settings.decimalPlaces + 1 });
+              }
+            }}
+            disabled={settings.decimalPlaces >= 10}
+            className={`w-10 h-10 rounded-r-md items-center justify-center ${
+              settings.decimalPlaces >= 10 ? "bg-muted/20" : "bg-primary/20"
+            }`}
+          >
+            <ThemedText className={settings.decimalPlaces >= 10 ? "text-muted" : "text-primary font-bold"}>
+              +
+            </ThemedText>
+          </Pressable>
+        </View>
       </View>
 
       <ThemedText className="mb-2 mt-4 text-text">

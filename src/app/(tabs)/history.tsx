@@ -16,7 +16,7 @@ export default function HistoryScreen() {
   }, []);
 
   return (
-    <ThemedView className="">
+    <ThemedView className="flex-1">
       <AppHeader title="Conversion History" />
 
       {/* Search Bar */}
@@ -29,7 +29,7 @@ export default function HistoryScreen() {
         />
       </View>
 
-      <View className="border-t-2 border-border mt-4 mb-[30px]">
+      <View className="border-t-2 border-border mt-4 flex-1">
         <HistoryList
           listType="all"
           searchTerm={searchTerm}

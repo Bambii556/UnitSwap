@@ -34,18 +34,18 @@ export default function ConversionScreen() {
   }, [categoryKey]);
 
   return (
-    <ThemedView className="px-4 pt-4 flex-1">
+    <ThemedView className="px-4 pt-8 flex-1">
       <AppHeader
         title={currentCategory.name}
         onBackPress={() => {
           router.back(); // is now handled by ConversionCard if needed
         }}
       />
-      {dbInitialized ? (
-        <>
-          {/* Render the new smart ConversionCard component */}
-          <ConversionCard categoryKey={categoryKey} />
+      {/* Render the new smart ConversionCard component */}
+      <ConversionCard categoryKey={categoryKey} />
 
+      {dbInitialized ? (
+        <View className="flex-1 safe-area-inset-bottom">
           {/* HistoryList remains here, receiving refreshTrigger from ConversionCard if needed */}
           <HistoryList
             listType="category"
@@ -57,7 +57,7 @@ export default function ConversionScreen() {
               // TODO: Optionally navigate back to this screen with pre-filled values
             }}
           />
-        </>
+        </View>
       ) : (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#007bff" />

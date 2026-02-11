@@ -170,41 +170,60 @@ export const HistoryList: React.FC<HistoryListProps> = ({
     : "No recent conversions yet.";
 
   const renderFooter = () => {
-    if (!infiniteScroll || (!loadingMore && !loading)) return null;
-    return (
-      <View className="mb-[16px]">
-        <ActivityIndicator size="small" color="rgb(var(--color-primary))" />
-      </View>
-    );
+    if (!infiniteScroll) return null;
+
+    // Show loading indicator when loading more data
+    if (loadingMore) {
+      return (
+        <View className="py-6 items-center justify-center">
+          <ActivityIndicator size="small" color="rgb(var(--color-primary))" />
+        </View>
+      );
+    }
+
+    // Show "end of list" indicator when no more data
+    if (!hasMore && conversions.length > 0) {
+      return (
+        <View className="py-4 items-center justify-center">
+          <ThemedText className="text-muted text-xs">End of history</ThemedText>
+        </View>
+      );
+    }
+
+    // Return empty view for spacing when not loading
+    return <View className="h-6" />;
   };
 
   return (
-    <FlatList
-      className="bg-background pt-4"
-      onRefresh={handleRefresh}
-      refreshing={refreshing}
-      data={conversions}
-      keyExtractor={(item) => item.id!.toString()}
-      renderItem={({ item }) => (
-        <HistoryItem
-          fromValue={item.inputValue}
-          fromUnit={item.originalUnit}
-          toValue={item.outputValue}
-          toUnit={item.convertedUnit}
-          timeAgo={formatTimeAgo(item.timestamp)}
-          onPress={() => onConversionPress && onConversionPress(item)}
-          conversionType={item.conversionType}
-          useScientificNotation={settings.useScientificNotation}
-          thousandSeparator={settings.thousandSeparator}
-        />
-      )}
-      ItemSeparatorComponent={() => <View className="h-2" />}
-      onEndReached={infiniteScroll ? handleLoadMore : null} // Only enable onEndReached for infinite scroll
-      onEndReachedThreshold={0.5}
-      ListFooterComponentStyle={{ marginBottom: 16 }} // Add some spacing at the bottom for the loading indicator
-      ListFooterComponent={renderFooter}
-      scrollEnabled={true} // Enable scrolling for FlatList
-      ListEmptyComponent={<ThemedText>{emptyText}</ThemedText>}
-    />
+    <View className="flex-1">
+      <FlatList
+        className="bg-background pt-4"
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
+        data={conversions}
+        keyExtractor={(item) => item.id!.toString()}
+        renderItem={({ item }) => (
+          <HistoryItem
+            fromValue={item.inputValue}
+            fromUnit={item.originalUnit}
+            toValue={item.outputValue}
+            toUnit={item.convertedUnit}
+            timeAgo={formatTimeAgo(item.timestamp)}
+            onPress={() => onConversionPress && onConversionPress(item)}
+            conversionType={item.conversionType}
+            useScientificNotation={settings.useScientificNotation}
+            thousandSeparator={settings.thousandSeparator}
+          />
+        )}
+        ItemSeparatorComponent={() => <View className="h-2" />}
+        onEndReached={infiniteScroll ? handleLoadMore : null}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={renderFooter}
+        scrollEnabled={true}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 45 }}
+        ListEmptyComponent={<ThemedText>{emptyText}</ThemedText>}
+      />
+    </View>
   );
 };

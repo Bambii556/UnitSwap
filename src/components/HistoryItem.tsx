@@ -30,7 +30,8 @@ export function HistoryItem({
   useScientificNotation,
   thousandSeparator,
 }: HistoryItemProps) {
-  const { formatWithOptions } = useNumberFormat();
+  const { formatNumberValue, settings } = useNumberFormat();
+
   const category = ALL_CATEGORIES.find(
     (cat: Category) =>
       cat.name.toLocaleLowerCase() === conversionType.toLocaleLowerCase(),
@@ -38,56 +39,67 @@ export function HistoryItem({
 
   const iconBackgroundColor = category ? category.color + "20" : undefined;
 
-  // Use props if provided, otherwise let the hook use settings
-  const formatOptions = useScientificNotation !== undefined || thousandSeparator !== undefined
-    ? {
-        useScientificNotation,
-        thousandSeparator,
-        useFullPrecision: true,
-      }
-    : { useFullPrecision: true };
+  // Format with decimal places from settings, allow prop overrides for scientific notation and separator
+  const formatOptions = {
+    useScientificNotation: useScientificNotation !== undefined ? useScientificNotation : settings.useScientificNotation,
+    thousandSeparator: thousandSeparator !== undefined ? thousandSeparator : settings.thousandSeparator,
+    decimalPlaces: settings.decimalPlaces,
+  };
 
-  const displayFromValue = formatWithOptions(fromValue, formatOptions);
-  const displayToValue = formatWithOptions(toValue, formatOptions);
+  const displayFromValue = formatNumberValue(fromValue, formatOptions);
+  const displayToValue = formatNumberValue(toValue, formatOptions);
 
   return (
     <TouchableOpacity className="px-4" onPress={onPress}>
-      <BlurBackground className="flex-row items-center p-4 mb-3 rounded-xl bg-cardSecond">
-        <View className="flex-row items-center flex-1 min-w-0">
-          <View className="items-center flex-shrink-0">
-            <CategoryIcon
-              categoryName={conversionType}
-              containerSize={40}
-              size={24}
-              backgroundColor={iconBackgroundColor}
-            />
-          </View>
-          <View className="ml-4 flex-1 min-w-0">
-            <View className="flex-row items-center">
-              <ThemedText 
-                type="defaultSemiBold" 
-                className="text-text"
-                numberOfLines={1}
-                adjustsFontSizeToFit={true}
-                minimumFontScale={0.5}
-              >
-                {displayFromValue} {fromUnit} {"→"} {toUnit}
-              </ThemedText>
-            </View>
-            <ThemedText className="text-muted text-xs mt-1">
-              {timeAgo}
+      <BlurBackground className="flex-row items-center p-3 rounded-xl bg-cardSecond">
+        {/* Icon */}
+        <View className="flex-shrink-0 mr-3">
+          <CategoryIcon
+            categoryName={conversionType}
+            containerSize={36}
+            size={20}
+            backgroundColor={iconBackgroundColor}
+          />
+        </View>
+
+        {/* Content */}
+        <View className="flex-1 min-w-0">
+          {/* From */}
+          <View className="flex-row items-baseline">
+            <ThemedText className="text-muted text-xs w-10 flex-shrink-0">
+              From
+            </ThemedText>
+            <ThemedText 
+              type="defaultSemiBold" 
+              className="text-text flex-shrink"
+              numberOfLines={1}
+            >
+              {displayFromValue}
+            </ThemedText>
+            <ThemedText className="text-muted text-xs ml-1 flex-shrink-0">
+              {fromUnit}
             </ThemedText>
           </View>
-        </View>
-        <View className="justify-end items-end ml-2 flex-shrink-0 max-w-[50%]">
-          <ThemedText 
-            type="subtitle" 
-            className="text-primary font-semibold"
-            numberOfLines={1}
-            adjustsFontSizeToFit={true}
-            minimumFontScale={0.5}
-          >
-            {displayToValue} {toUnit}
+
+          {/* To */}
+          <View className="flex-row items-baseline mt-1">
+            <ThemedText className="text-muted text-xs w-10 flex-shrink-0">
+              To
+            </ThemedText>
+            <ThemedText 
+              className="text-primary font-semibold flex-shrink"
+              numberOfLines={1}
+            >
+              {displayToValue}
+            </ThemedText>
+            <ThemedText className="text-muted text-xs ml-1 flex-shrink-0">
+              {toUnit}
+            </ThemedText>
+          </View>
+
+          {/* Time */}
+          <ThemedText className="text-muted text-xs mt-1.5">
+            {timeAgo}
           </ThemedText>
         </View>
       </BlurBackground>
