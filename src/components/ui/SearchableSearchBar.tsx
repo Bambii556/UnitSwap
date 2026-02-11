@@ -4,7 +4,7 @@ import { useAppTheme } from "@/providers/ThemeProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import { ScrollView, TouchableOpacity, View } from "react-native";
+import { FlatList, TouchableOpacity, View } from "react-native";
 import { SearchBar } from "./SearchBar";
 
 interface SearchResult {
@@ -82,7 +82,7 @@ export function SearchableSearchBar({
   const showDropdown = isFocused && filteredUnits.length > 0;
 
   return (
-    <View className="relative z-50">
+    <View className="relative z-50" pointerEvents="box-none">
       {/* Search Input */}
       <SearchBar
         placeholder="Search units (e.g., meters to feet)"
@@ -97,21 +97,19 @@ export function SearchableSearchBar({
 
       {/* Dropdown Results */}
       {showDropdown && (
-        <View className="absolute top-full left-0 right-0 mt-2 bg-card rounded-xl border border-border shadow-lg">
-          <ScrollView
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-            nestedScrollEnabled={false}
-            removeClippedSubviews={true}
-            onStartShouldSetResponderCapture={() => true} // Prevent dropdown scroll from bubbling up
-            onMoveShouldSetResponderCapture={() => true} // Prevent dropdown scroll from bubbling up
-            // style={{ maxHeight: "60%" }} // Limit dropdown height to 60% of screen
+        <View className="mt-2 bg-card rounded-xl border border-border shadow-lg z-50" pointerEvents="auto" style={{ elevation: 5 }}>
+          <FlatList
+            data={filteredUnits}
+            keyExtractor={(item) => item.unitKey}
+            keyboardShouldPersistTaps="always"
+            scrollEnabled={true}
+            showsVerticalScrollIndicator={true}
+            nestedScrollEnabled={true}
             className="max-h-[50vh]"
-          >
-            {filteredUnits.map((item, index) => (
+            renderItem={({ item, index }) => (
               <TouchableOpacity
-                key={item.unitKey}
                 onPress={() => handleSelectUnit(item.categoryName)}
+                activeOpacity={0.7}
                 className={`flex-row items-center px-4 py-3 active:bg-muted/10 ${
                   index !== filteredUnits.length - 1
                     ? "border-b border-border"
@@ -141,13 +139,15 @@ export function SearchableSearchBar({
                   color={colors.muted}
                 />
               </TouchableOpacity>
-            ))}
-            {filteredUnits.length === 0 && searchQuery.length > 0 && (
-              <View className="px-4 py-4 items-center">
-                <ThemedText className="text-muted">No units found</ThemedText>
-              </View>
             )}
-          </ScrollView>
+            ListEmptyComponent={
+              searchQuery.length > 0 ? (
+                <View className="px-4 py-4 items-center">
+                  <ThemedText className="text-muted">No units found</ThemedText>
+                </View>
+              ) : null
+            }
+          />
         </View>
       )}
     </View>

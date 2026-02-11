@@ -1,8 +1,8 @@
 import React from "react";
 import { TouchableOpacity } from "react-native";
-import { ThemedText } from "../components/themed-text";
 import { BlurBackground } from "./BlurBackground";
 import { CategoryIcon } from "./CategoryIcon"; // Import CategoryIcon
+import { ThemedText } from "./themed-text";
 
 interface CategoryCardProps {
   title: string;

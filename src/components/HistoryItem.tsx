@@ -41,8 +41,14 @@ export function HistoryItem({
 
   // Format with decimal places from settings, allow prop overrides for scientific notation and separator
   const formatOptions = {
-    useScientificNotation: useScientificNotation !== undefined ? useScientificNotation : settings.useScientificNotation,
-    thousandSeparator: thousandSeparator !== undefined ? thousandSeparator : settings.thousandSeparator,
+    useScientificNotation:
+      useScientificNotation !== undefined
+        ? useScientificNotation
+        : settings.useScientificNotation,
+    thousandSeparator:
+      thousandSeparator !== undefined
+        ? thousandSeparator
+        : settings.thousandSeparator,
     decimalPlaces: settings.decimalPlaces,
   };
 
@@ -69,8 +75,8 @@ export function HistoryItem({
             <ThemedText className="text-muted text-xs w-10 flex-shrink-0">
               From
             </ThemedText>
-            <ThemedText 
-              type="defaultSemiBold" 
+            <ThemedText
+              type="defaultSemiBold"
               className="text-text flex-shrink"
               numberOfLines={1}
             >
@@ -86,7 +92,7 @@ export function HistoryItem({
             <ThemedText className="text-muted text-xs w-10 flex-shrink-0">
               To
             </ThemedText>
-            <ThemedText 
+            <ThemedText
               className="text-primary font-semibold flex-shrink"
               numberOfLines={1}
             >

@@ -4,24 +4,18 @@ import { ThemedView } from "@/components/themed-view";
 import { SearchableSearchBar } from "@/components/ui/SearchableSearchBar";
 import { Conversion } from "@/database/database";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { ThemedText } from "../../components/themed-text";
 import { ALL_CATEGORIES } from "../../constants/categories";
 
 export default function HomeScreen() {
   const [showAllCategories, setShowAllCategories] = useState(false); // New state for toggling categories visibility
-  const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
   const router = useRouter();
 
   const filteredCategories = showAllCategories
     ? ALL_CATEGORIES
     : ALL_CATEGORIES.slice(0, 4);
-
-  // Disable main scroll when search is focused
-  useEffect(() => {
-    // Use this to disable main scroll when search dropdown is active
-  }, [isSearchFocused]);
 
   return (
     <ThemedView className="pt-[50px]">
@@ -33,20 +27,18 @@ export default function HomeScreen() {
         <ThemedText type="muted">Type any unit to start converting</ThemedText>
       </View>
 
-       {/* Search Bar */}
-        <View className="mx-4 mt-4">
-          <SearchableSearchBar 
-            placeholder="Search units (e.g., meters to feet)" 
-            onFocusChange={setIsSearchFocused}
-          />
-        </View>
+      {/* Search Bar */}
+      <View className="mx-4 mt-4 z-50" style={{ elevation: 5 }}>
+        <SearchableSearchBar placeholder="Search units (e.g., meters to feet)" />
+      </View>
 
       <ScrollView
-        className="mt-4"
+        className="mt-4 z-0"
         contentContainerStyle={{ paddingBottom: 20 }}
         showsVerticalScrollIndicator={false}
-        scrollEnabled={!isSearchFocused}
+        keyboardShouldPersistTaps="always"
       >
+      
         <View className="mt-6 px-4 flex-row justify-between items-center">
           <ThemedText className="text-text text-xl font-bold">
             Categories
