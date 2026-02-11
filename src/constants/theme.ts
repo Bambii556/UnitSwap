@@ -1,13 +1,34 @@
-export const Colors = {
+export type Color = {
+  primary: string;
+  text: string;
+  background: string;
+  tint: string;
+  icon: string;
+  border: string;
+  tabIconDefault: string;
+  tabIconSelected: string;
+  card: string;
+  muted: string;
+  cardSecond: string;
+};
+
+export type ThemeColors = {
+  light: Color;
+  dark: Color;
+};
+
+export const Theme: ThemeColors = {
   light: {
     primary: "#135bec",
     text: "#11181C",
     background: "#fff",
     tint: "#0a7ea4",
     icon: "#687076",
+    border: "#ffffff1a",
     tabIconDefault: "#687076",
     tabIconSelected: "#0a7ea4",
     card: "#F0F2F4" + "80",
+    muted: "#8a8a8e",
     cardSecond: "#E0E2E4",
   },
   dark: {

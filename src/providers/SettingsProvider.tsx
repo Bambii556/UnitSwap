@@ -1,4 +1,3 @@
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import {
   AppSettings,
   DEFAULT_SETTINGS,
@@ -10,13 +9,15 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
+import { useColorScheme as useSystemColorScheme } from "react-native";
 
 interface SettingsContextType {
   settings: AppSettings;
   updateSettings: (newSettings: Partial<AppSettings>) => void;
-  colorScheme: "light" | "dark"; // The actual resolved color scheme
+  colorScheme: "light" | "dark";
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(
@@ -24,11 +25,8 @@ const SettingsContext = createContext<SettingsContextType | undefined>(
 );
 
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
-  const systemColorScheme = useColorScheme();
+  const systemColorScheme = useSystemColorScheme();
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
-  const [resolvedColorScheme, setResolvedColorScheme] = useState<
-    "light" | "dark"
-  >(systemColorScheme || "light");
 
   useEffect(() => {
     const loadAppSettings = async () => {
@@ -38,13 +36,11 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     loadAppSettings();
   }, []);
 
-  useEffect(() => {
-    // Determine the active color scheme based on user settings and system preference
-    if (settings.theme === "system") {
-      setResolvedColorScheme(systemColorScheme || "light");
-    } else {
-      setResolvedColorScheme(settings.theme);
-    }
+  // Calculate the resolved color scheme based on settings
+  const colorScheme: "light" | "dark" = useMemo(() => {
+    const activeTheme =
+      settings.theme === "system" ? systemColorScheme : settings.theme;
+    return activeTheme === "dark" ? "dark" : "light";
   }, [settings.theme, systemColorScheme]);
 
   const updateSettings = async (newSettings: Partial<AppSettings>) => {
@@ -56,7 +52,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const contextValue = {
     settings,
     updateSettings,
-    colorScheme: resolvedColorScheme,
+    colorScheme,
   };
 
   return (

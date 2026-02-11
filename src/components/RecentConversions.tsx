@@ -1,5 +1,6 @@
 import { HistoryItem } from "@/components/HistoryItem";
 import { Conversion, getConversions } from "@/database/database";
+import { useSettings } from "@/providers/SettingsProvider";
 import { formatTimeAgo } from "@/utils/time";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useState } from "react";
@@ -13,6 +14,7 @@ interface RecentConversionsProps {
 export const RecentConversions: React.FC<RecentConversionsProps> = ({
   onConversionPress,
 }) => {
+  const { settings } = useSettings();
   const [conversions, setConversions] = useState<Conversion[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -63,13 +65,15 @@ export const RecentConversions: React.FC<RecentConversionsProps> = ({
       {conversions.map((item, index) => (
         <React.Fragment key={item.id}>
           <HistoryItem
-            fromValue={item.inputValue.toString()}
+            fromValue={item.inputValue}
             fromUnit={item.originalUnit}
-            toValue={item.outputValue.toString()}
+            toValue={item.outputValue}
             toUnit={item.convertedUnit}
             timeAgo={formatTimeAgo(item.timestamp)}
             onPress={() => onConversionPress && onConversionPress(item)}
             conversionType={item.conversionType}
+            useScientificNotation={settings.useScientificNotation}
+            thousandSeparator={settings.thousandSeparator}
           />
           {index < conversions.length - 1 && <View className="h-2" />}
         </React.Fragment>

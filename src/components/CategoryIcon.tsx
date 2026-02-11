@@ -19,7 +19,6 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({
   const category = ALL_CATEGORIES.find(
     (cat) => cat.name.toLocaleLowerCase() === categoryName.toLocaleLowerCase(),
   );
-  // console.log(`CategoryIcon - ${categoryName}:`, category);
   const iconName: IconSymbolName = category
     ? (category.icon as IconSymbolName)
     : "questionmark.circle.fill"; // Default icon if not found

@@ -1,4 +1,34 @@
-import { Colors } from "./src/constants/theme";
+const { Theme } = require("./src/constants/theme");
+
+function hexToRgbString(hex) {
+  // Remove # if present
+  hex = hex.replace("#", "");
+
+  // Handle 3-digit hex
+  if (hex.length === 3) {
+    hex = hex
+      .split("")
+      .map((char) => char + char)
+      .join("");
+  }
+
+  // Handle 8-digit hex (with alpha)
+  if (hex.length === 8) {
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    const a = parseInt(hex.slice(6, 8), 16) / 255;
+    return `${r} ${g} ${b} / ${a.toFixed(2)}`;
+  }
+
+  // Handle 6-digit hex
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+
+  return `${r} ${g} ${b}`;
+}
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -11,15 +41,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: Colors.dark.primary,
-        background: Colors.dark.background,
-        border: Colors.dark.border,
-        text: Colors.dark.text,
-        card: Colors.dark.card,
-        icon: Colors.dark.icon,
-        muted: Colors.dark.muted,
-        active: Colors.dark.tint,
-        cardSecond: Colors.dark.cardSecond,
+        ...Object.keys(Theme.dark).reduce((acc, key) => {
+          acc[key] = `rgb(var(--color-${key}))`;
+          return acc;
+        }, {}),
       },
       fontFamily: {
         display: ["Inter"],
@@ -32,5 +57,18 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    ({ addBase }) => {
+      addBase({
+        ":root": Object.entries(Theme.light).reduce((acc, [key, value]) => {
+          acc[`--color-${key}`] = hexToRgbString(value);
+          return acc;
+        }, {}),
+        ".dark": Object.entries(Theme.dark).reduce((acc, [key, value]) => {
+          acc[`--color-${key}`] = hexToRgbString(value);
+          return acc;
+        }, {}),
+      });
+    },
+  ],
 };

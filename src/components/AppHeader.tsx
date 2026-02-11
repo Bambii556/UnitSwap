@@ -1,4 +1,5 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { useAppTheme } from "@/providers/ThemeProvider";
 import React from "react";
 import { Platform, TouchableOpacity, View } from "react-native";
 import { ThemedText } from "../components/themed-text";
@@ -14,6 +15,8 @@ export function AppHeader({
   // onHistoryPress,
   onBackPress,
 }: AppHeaderProps) {
+  const { colors } = useAppTheme();
+
   return (
     <View
       className="flex-row items-center justify-between px-4 py-3 bg-background"
@@ -24,18 +27,18 @@ export function AppHeader({
       <View>
         {onBackPress && (
           <TouchableOpacity onPress={onBackPress}>
-            <IconSymbol name="xmark.circle.fill" color="white" size={28} />
+            <IconSymbol name="xmark.circle.fill" color={colors.icon} size={28} />
           </TouchableOpacity>
         )}
       </View>
       <View>
-        <ThemedText className="text-white text-xl font-bold">
+        <ThemedText className="text-text text-xl font-bold">
           {title}
         </ThemedText>
       </View>
       <View>
         {/* <TouchableOpacity onPress={onHistoryPress}>
-          <IconSymbol name="arrow.counterclockwise" color="white" size={28} />
+          <IconSymbol name="arrow.counterclockwise" color={colors.icon} size={28} />
         </TouchableOpacity> */}
       </View>
     </View>

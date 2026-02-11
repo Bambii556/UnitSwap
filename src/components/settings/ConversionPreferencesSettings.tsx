@@ -44,7 +44,7 @@ export const ConversionPreferencesSettings: React.FC = () => {
         Thousand Separator
       </ThemedText>
       <View className="flex-row justify-around mb-4">
-        {[",", ".", " ", "none"].map((separator) => (
+        {[",", " ", "none"].map((separator) => (
           <Pressable
             key={separator}
             onPress={() =>
@@ -72,6 +72,41 @@ export const ConversionPreferencesSettings: React.FC = () => {
                 : separator === "none"
                   ? "None"
                   : separator}
+            </ThemedText>
+          </Pressable>
+        ))}
+      </View>
+
+      <ThemedText className="mb-2 mt-4 text-text">
+        Large Numbers Display
+      </ThemedText>
+      <View className="flex-row justify-around mb-4">
+        {[
+          { value: false, label: "Full Value" },
+          { value: true, label: "Scientific (e+)" },
+        ].map((option) => (
+          <Pressable
+            key={option.label}
+            onPress={() =>
+              updateSettings({
+                useScientificNotation: option.value,
+              })
+            }
+            className={cn(
+              "flex-1 py-2 items-center border rounded-md mx-1",
+              settings.useScientificNotation === option.value
+                ? "bg-primary border-primary"
+                : "border-border bg-card",
+            )}
+          >
+            <ThemedText
+              className={cn(
+                settings.useScientificNotation === option.value
+                  ? "text-white"
+                  : "text-text",
+              )}
+            >
+              {option.label}
             </ThemedText>
           </Pressable>
         ))}

@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Pressable, TextInput, View } from "react-native";
+import { useAppTheme } from "@/providers/ThemeProvider";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -17,15 +18,17 @@ export function SearchBar({
   value,
   onChangeText,
 }: SearchBarProps) {
+  const { colors } = useAppTheme();
+
   return (
-    <View className="flex-row items-center rounded-2xl bg-gray-800 px-4 py-3 dark:bg-gray-800">
+    <View className="flex-row items-center rounded-2xl bg-card px-4 py-3">
       <Pressable onPress={() => onSearch(value)} className="pr-2">
-        <Ionicons name="search" size={20} color="#9CA3AF" />
+        <Ionicons name="search" size={20} color={colors.muted || colors.icon} />
       </Pressable>
       <TextInput
-        className="flex-1 text-base text-gray-200 dark:text-gray-200"
+        className="flex-1 text-base text-text"
         placeholder={placeholder}
-        placeholderTextColor="#9CA3AF"
+        placeholderTextColor={colors.muted || colors.icon}
         value={value}
         onChangeText={onChangeText}
         returnKeyType="search"
@@ -33,7 +36,7 @@ export function SearchBar({
       />
       {onVoiceSearch && (
         <Pressable onPress={onVoiceSearch} className="pl-2">
-          <Ionicons name="mic" size={20} color="#9CA3AF" />
+          <Ionicons name="mic" size={20} color={colors.muted || colors.icon} />
         </Pressable>
       )}
     </View>

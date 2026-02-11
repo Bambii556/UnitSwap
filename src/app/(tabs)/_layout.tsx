@@ -1,5 +1,5 @@
 import { IconSymbol, IconSymbolName } from "@/components/ui/icon-symbol";
-import { Colors } from "@/constants/theme";
+import { useAppTheme } from "@/providers/ThemeProvider";
 import { Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
@@ -16,26 +16,30 @@ function TabBarIcon({ name, color }: TabBarIconProps) {
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const { colors } = useAppTheme();
+
+  // For Android, don't add bottom inset since we're hiding the nav bar
+  const bottomPadding = Platform.OS === 'ios' ? insets.bottom : 8;
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.dark.tabIconSelected,
-        tabBarInactiveTintColor: Colors.dark.tabIconDefault,
+        tabBarActiveTintColor: colors.tabIconSelected,
+        tabBarInactiveTintColor: colors.tabIconDefault,
         tabBarShowLabel: true,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: Colors.dark.background,
+          backgroundColor: colors.background,
           borderTopWidth: 1,
-          borderTopColor: Colors.dark.text + "33", // Subtle border using 20% opacity of text color
-          height: 35 + insets.bottom, // Default tab bar height + safe area bottom inset
-          paddingBottom: insets.bottom, // Push content up from the bottom safe area
+          borderTopColor: colors.text + "33", // Subtle border using 20% opacity of text color
+          height: 60 + bottomPadding, // Fixed height + minimal padding
+          paddingBottom: bottomPadding, // Safe area only on iOS
           paddingTop: 5, // Add space between the top border and icons/labels
         },
         tabBarLabelStyle: {
           fontSize: 12,
           marginBottom: Platform.OS === "ios" ? 0 : 3,
-          color: Colors.dark.text,
+          color: colors.text,
         },
       }}
     >

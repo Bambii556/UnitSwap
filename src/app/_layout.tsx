@@ -1,14 +1,16 @@
-import { initDb } from "@/database/database"; // Import initDb
+import { initDb } from "@/database/database";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
+import * as NavigationBar from "expo-navigation-bar";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar } from "expo-status-bar"; // Keep StatusBar from expo-status-bar
+import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
 import { Platform } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../global.css";
-import { SettingsProvider, useSettings } from "../providers/SettingsProvider"; // Import SettingsProvider and useSettings
+import { SettingsProvider } from "../providers/SettingsProvider";
+import { ThemeProvider, useAppTheme } from "../providers/ThemeProvider";
 
 const initializeDatabase = async () => {
   try {
@@ -16,11 +18,9 @@ const initializeDatabase = async () => {
     console.log("Database initialized successfully.");
   } catch (error) {
     console.error("Failed to initialize database:", error);
-    // Optionally, you might want to show an alert to the user or handle this more gracefully
   }
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -28,7 +28,6 @@ export default function RootLayout() {
     ...MaterialIcons.font,
   });
 
-  // Expo Router uses Error Boundary to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
@@ -39,6 +38,17 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      NavigationBar.setVisibilityAsync('hidden');
+      NavigationBar.setBehaviorAsync('inset-swipe');
+    }
+  }, []);
+
+  useEffect(() => {
+    initializeDatabase();
+  }, []);
+
   if (!loaded) {
     return null;
   }
@@ -46,24 +56,20 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <SettingsProvider>
-        {/* Wrap with SettingsProvider */}
-        <RootLayoutContent />
-        <React.Suspense fallback={null}>
-          <DatabaseInitializer />
-        </React.Suspense>
+        <ThemeProvider>
+          <RootLayoutContent />
+        </ThemeProvider>
       </SettingsProvider>
     </SafeAreaProvider>
   );
 }
 
 function RootLayoutContent() {
-  const router = useRouter();
-  const { colorScheme } = useSettings(); // Use useSettings to get the resolved color scheme
+  const { colorScheme } = useAppTheme();
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <>
       <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-      {/* Apply colorScheme to StatusBar */}
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
@@ -75,13 +81,6 @@ function RootLayoutContent() {
           }}
         />
       </Stack>
-    </SafeAreaView>
+    </>
   );
-}
-
-function DatabaseInitializer() {
-  useEffect(() => {
-    initializeDatabase();
-  }, []);
-  return null; // This component doesn't render anything
 }

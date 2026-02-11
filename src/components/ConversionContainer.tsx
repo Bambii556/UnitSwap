@@ -1,5 +1,5 @@
-import { HistoryList } from "@/components/HistoryList"; // Import HistoryList
-import { IconSymbol } from "@/components/ui/icon-symbol"; // Import IconSymbol for the swap button
+import { HistoryList } from "@/components/HistoryList";
+import { IconSymbol } from "@/components/ui/icon-symbol";
 import {
   CategoryKey,
   conversionModules,
@@ -8,11 +8,11 @@ import {
 } from "@/conversions";
 import { fetchCurrencyRates } from "@/conversions/converters/currency";
 import { saveConversion } from "@/database/database";
-import { useNumberInput } from "@/hooks/use-number-input";
-import { useSettings } from "@/providers/SettingsProvider";
+import { useNumberFormat } from "@/hooks/useNumberFormat";
+import { cleanInput } from "@/utils/number-format";
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
-import ConversionCard from "./ConversionCard"; // Import the new UI component
+import ConversionCard from "./ConversionCard";
 import { ThemedText } from "./themed-text";
 
 interface ConversionContainerProps {
@@ -21,7 +21,8 @@ interface ConversionContainerProps {
 
 const ConversionContainer: React.FC<ConversionContainerProps> = memo(
   ({ categoryKey }) => {
-    const { settings } = useSettings();
+    ConversionContainer.displayName = 'ConversionContainer';
+    const { formatForConversion } = useNumberFormat();
 
     const currentCategory = useMemo(() => {
       return conversionModules[categoryKey] || conversionModules["length"];
@@ -39,6 +40,10 @@ const ConversionContainer: React.FC<ConversionContainerProps> = memo(
         Object.keys(currentCategory?.units || {})[0] ||
         "",
     );
+
+    // Display values are formatted for user-friendly display, while input values are raw for TextInput
+    const [fromDisplayValue, setFromDisplayValue] = useState("0");
+    const [toDisplayValue, setToDisplayValue] = useState("0");
 
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [currencyRates, setCurrencyRates] = useState<CurrencyRates | null>(
@@ -89,38 +94,22 @@ const ConversionContainer: React.FC<ConversionContainerProps> = memo(
             | CurrencyRates
             | undefined,
         );
-        return converted !== null
-          ? converted.toFixed(settings.decimalPlaces || 2)
-          : "0"; // Use settings.decimalPlaces
+        return converted !== null ? String(converted) : "0";
       },
-      [categoryKey, currencyRates, settings.decimalPlaces], // Add settings.decimalPlaces dependency
+      [categoryKey, currencyRates],
     );
 
-    // Use useNumberInput for the FROM card
-    const {
-      displayedValue: fromDisplayedValue,
-      handleTextChange: handleFromTextChange,
-      handleFocus: handleFromFocus,
-      handleBlur: handleFromBlur,
-      handleSelectionChange: handleFromSelectionChange,
-      selection: fromSelection,
-    } = useNumberInput({
-      initialValue: fromValue,
-      onValueChange: setFromValue,
-      settings: settings,
-    });
-
-    // Use useNumberInput for the TO card (display only)
-    const { displayedValue: toDisplayedValue, selection: toSelection } =
-      useNumberInput({
-        initialValue: toValue,
-        settings: settings,
-      });
+    const handleFromTextChange = (text: string) => {
+      setFromValue(cleanInput(text));
+    };
 
     // Effect to perform conversion when fromValue, units, or category changes
     useEffect(() => {
       const converted = convertValue(fromValue, fromUnit, toUnit);
       setToValue(converted);
+
+      setFromDisplayValue(formatForConversion(fromValue));
+      setToDisplayValue(formatForConversion(converted));
 
       const handler = setTimeout(() => {
         const numericFromValue = parseFloat(fromValue);
@@ -150,7 +139,7 @@ const ConversionContainer: React.FC<ConversionContainerProps> = memo(
       return () => {
         clearTimeout(handler);
       };
-    }, [fromValue, fromUnit, toUnit, categoryKey, convertValue]);
+    }, [fromValue, fromUnit, toUnit, categoryKey, convertValue, formatForConversion]);
 
     const handleSwapPress = useCallback(() => {
       const currentFromUnit = fromUnit;
@@ -179,7 +168,8 @@ const ConversionContainer: React.FC<ConversionContainerProps> = memo(
           <ConversionCard
             key="from-card"
             title="FROM"
-            displayedValue={fromDisplayedValue}
+            displayedValue={fromDisplayValue}
+            inputValue={fromValue}
             onChangeText={handleFromTextChange}
             unit={fromUnit}
             onUnitChange={(newFromUnit) => {
@@ -195,10 +185,6 @@ const ConversionContainer: React.FC<ConversionContainerProps> = memo(
             currentCategory={currentCategory}
             editable={true}
             primary={true}
-            onFocus={handleFromFocus}
-            onBlur={handleFromBlur}
-            selection={fromSelection}
-            onSelectionChange={handleFromSelectionChange}
           />
 
           {/* Swap Button */}
@@ -216,8 +202,8 @@ const ConversionContainer: React.FC<ConversionContainerProps> = memo(
           <ConversionCard
             key="to-card"
             title="TO"
-            displayedValue={toDisplayedValue}
-            onChangeText={() => {}} // TO card is not editable
+            displayedValue={toDisplayValue}
+            inputValue={toValue}
             unit={toUnit}
             onUnitChange={(newToUnit) => {
               if (newToUnit === fromUnit) {
@@ -230,12 +216,6 @@ const ConversionContainer: React.FC<ConversionContainerProps> = memo(
               }
             }}
             currentCategory={currentCategory}
-            editable={false}
-            primary={false}
-            onFocus={() => {}}
-            onBlur={() => {}}
-            selection={toSelection}
-            onSelectionChange={() => {}}
           />
         </View>
         <View className="mt-6">

@@ -1,13 +1,11 @@
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useSettings } from "@/providers/SettingsProvider";
 import { cn } from "@/utils/cn";
-import { AppSettings } from "@/utils/settings"; // Corrected import for AppSettings
+import { AppSettings } from "@/utils/settings";
 import React from "react";
 import { Pressable, View } from "react-native";
 import { ThemedText } from "../themed-text";
 
 export const ThemeSettings: React.FC = () => {
-  const systemColorScheme = useColorScheme();
   const { settings, updateSettings } = useSettings();
 
   const handleThemeChange = (newTheme: AppSettings["theme"]) => {

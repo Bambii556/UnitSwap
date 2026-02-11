@@ -1,85 +1,68 @@
-import { Colors } from "@/constants/theme";
 import { CategoryType, UnitKey } from "@/conversions";
+import { useAppTheme } from "@/providers/ThemeProvider";
 import { cn } from "@/utils/cn";
 import React, { memo, useEffect, useRef, useState } from "react";
-import { Pressable, ScrollView, TextInput, View } from "react-native";
+import { ScrollView, TextInput, View } from "react-native";
 import { ThemedText } from "./themed-text";
 import UnitPicker from "./UnitPicker";
 
 interface ConversionCardProps {
   title: "TO" | "FROM";
-  displayedValue: string;
-  onChangeText: (text: string) => void;
+  displayedValue: string; // Formatted value for display
+  inputValue: string; // Raw value for TextInput
+  onChangeText?: (text: string) => void;
   unit: UnitKey;
   onUnitChange: (unitKey: UnitKey) => void;
   currentCategory: CategoryType;
   editable?: boolean;
-  primary: boolean; // For variations like border color
-  onFocus: () => void;
-  onBlur: () => void;
-  selection: { start: number; end: number };
-  onSelectionChange: (event: any) => void;
+  primary?: boolean; // For variations like border color
 }
 
 const ConversionCard: React.FC<ConversionCardProps> = memo(
   ({
     title,
     displayedValue,
+    inputValue, // New prop for raw value
     onChangeText,
     unit,
     onUnitChange,
     currentCategory,
     editable = false,
     primary = false,
-    onFocus,
-    onBlur,
-    selection,
-    onSelectionChange,
   }) => {
+    const { colors } = useAppTheme();
+
     const textInputRef = useRef<TextInput>(null);
-    const [isEditing, setIsEditing] = useState(false);
-    const [rawInputValue, setRawInputValue] = useState(displayedValue);
+    const [isEditing, setIsEditing] = useState(false); // Reintroduce isEditing state
 
     // Effect to focus TextInput when editing starts
     useEffect(() => {
-      if (isEditing && textInputRef.current) {
+      if (isEditing && editable && textInputRef.current) {
         setTimeout(() => {
           textInputRef.current?.focus();
         }, 100);
       }
-      // When entering editing mode, initialize rawInputValue with the current displayedValue
-      if (isEditing) {
-        setRawInputValue(displayedValue);
-      }
-    }, [isEditing, displayedValue]);
+    }, [isEditing, editable]);
 
-    const handleDisplayPress = () => {
+    const handleTapOnScroller = () => {
       if (editable) {
-        console.log("Card Pressed, entering edit mode");
         setIsEditing(true);
-        onFocus(); // Propagate focus
       }
     };
 
     const handleInputBlur = () => {
-      console.log("Input lost focus, exiting edit mode");
-      setIsEditing(false);
-      onBlur(); // Propagate original onBlur
+      setIsEditing(false); // Set isEditing to false on input blur
     };
 
-    // Effect to clean the raw input and propagate changes when rawInputValue changes
     useEffect(() => {
-      const cleanedValue = rawInputValue.replace(/[^0-9.]/g, "");
-      onChangeText(cleanedValue);
-    }, [rawInputValue]);
+      console.log(`[${title}] inputValue changed:`, inputValue);
+    }, [inputValue, title]);
 
     return (
-      <PressableCard
-        isEditing={isEditing}
-        onPress={handleDisplayPress}
+      <View
         className={cn(
-          "bg-card rounded-xl p-5 h-[110px]",
-          primary ? "border-2 border-primary" : "border-border",
+          "bg-card rounded-xl p-5 h-[110px] border-2",
+          primary ? "border-primary" : "border-border",
         )}
       >
         {/* Title (FROM/TO) and Unit Picker Row */}
@@ -103,43 +86,51 @@ const ConversionCard: React.FC<ConversionCardProps> = memo(
         </View>
 
         {/* Conversion Value */}
-        <View className="flex flex-row justify-start items-baseline gap-1">
-          <HorizontalScroller>
-            <View className="flex-row items-baseline  flex-grow flex-shrink-0 min-w-0 h-full justify-start gap-1">
-              {editable && isEditing ? (
-                <TextInput
-                  ref={textInputRef}
-                  className="text-4xl md:text-5xl font-bold tracking-tight text-text flex-grow flex-shrink-0 min-w-0 py-0 leading-none"
-                  placeholder="0"
-                  placeholderTextColor={Colors.dark.text}
-                  keyboardType="numeric"
-                  value={rawInputValue || "0"}
-                  onChangeText={setRawInputValue}
-                  scrollEnabled={false}
-                  editable={editable}
-                  multiline={false}
-                  onFocus={onFocus} // Propagate original onFocus
-                  onBlur={handleInputBlur} // Use new blur handler
-                  selection={selection}
-                  onSelectionChange={onSelectionChange}
-                />
-              ) : (
-                <ThemedText className="text-4xl md:text-5xl font-bold tracking-tight text-text flex-grow flex-shrink-0 min-w-0 py-0 leading-none">
-                  {displayedValue || "0"}
-                </ThemedText>
-              )}
-              <ThemedText className="text-xl font-medium text-muted">
-                {currentCategory.units[unit]?.symbol}
+        <HorizontalScroller
+          onTap={editable && !isEditing ? handleTapOnScroller : undefined}
+        >
+          <View className="flex-row items-baseline flex-nowrap flex-grow flex-shrink-0 min-w-0 h-full justify-start gap-1">
+            {editable && isEditing ? ( // Conditionally render TextInput
+              <TextInput
+                ref={textInputRef}
+                className="text-4xl md:text-5xl font-bold tracking-tight text-text flex-grow flex-shrink-0 min-w-0 py-0"
+                placeholder="0"
+                placeholderTextColor={colors.text}
+                keyboardType="numeric"
+                value={inputValue || "0"} // Use raw inputValue
+                onChangeText={onChangeText}
+                scrollEnabled={false}
+                editable={editable}
+                multiline={false}
+                onFocus={() => setIsEditing(true)} // Set isEditing on focus
+                onBlur={handleInputBlur} // Use internal blur handler
+              />
+            ) : (
+              <ThemedText className="text-4xl md:text-5xl font-bold tracking-tight text-text flex-grow flex-shrink-0 min-w-0 py-0">
+                {displayedValue || "0"}
               </ThemedText>
-            </View>
-          </HorizontalScroller>
-        </View>
-      </PressableCard>
+            )}
+            <ThemedText className="text-xl font-medium text-muted">
+              {currentCategory.units[unit]?.symbol}
+            </ThemedText>
+          </View>
+        </HorizontalScroller>
+      </View>
     );
   },
 );
 
-function HorizontalScroller({ children }: { children: React.ReactNode }) {
+interface HorizontalScrollerProps {
+  children: React.ReactNode;
+  onTap?: () => void;
+}
+
+function HorizontalScroller({ children, onTap }: HorizontalScrollerProps) {
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const touchStartTime = useRef(0);
+  const isScrolling = useRef(false);
+
   return (
     <ScrollView
       horizontal={true}
@@ -149,31 +140,39 @@ function HorizontalScroller({ children }: { children: React.ReactNode }) {
         flexDirection: "row",
         alignItems: "baseline",
       }}
-      onStartShouldSetResponder={() => true} // Allows ScrollView to claim touches for scrolling
+      onScrollBeginDrag={() => {
+        isScrolling.current = true;
+      }}
+      onScrollEndDrag={() => {
+        // Reset scrolling flag after a delay to prevent tap detection
+        setTimeout(() => {
+          isScrolling.current = false;
+        }, 50);
+      }}
+      onTouchStart={(event) => {
+        touchStartX.current = event.nativeEvent.pageX;
+        touchStartY.current = event.nativeEvent.pageY;
+        touchStartTime.current = Date.now();
+      }}
+      onTouchEnd={(event) => {
+        if (!onTap || isScrolling.current) return;
+
+        const touchEndX = event.nativeEvent.pageX;
+        const touchEndY = event.nativeEvent.pageY;
+        const touchDuration = Date.now() - touchStartTime.current;
+
+        const deltaX = Math.abs(touchEndX - touchStartX.current);
+        const deltaY = Math.abs(touchEndY - touchStartY.current);
+        const maxDelta = 10; // Maximum movement allowed for a tap
+
+        // Only trigger tap if it's a clean tap (minimal movement and quick)
+        if (deltaX < maxDelta && deltaY < maxDelta && touchDuration < 300) {
+          onTap();
+        }
+      }}
     >
       {children}
     </ScrollView>
-  );
-}
-
-function PressableCard({
-  isEditing,
-  children,
-  onPress,
-  className,
-}: {
-  isEditing: boolean;
-  children: React.ReactNode;
-  onPress: () => void;
-  className?: string;
-}) {
-  if (isEditing) {
-    return <View className={className}>{children}</View>;
-  }
-  return (
-    <Pressable onPress={onPress} className={className}>
-      {children}
-    </Pressable>
   );
 }
 

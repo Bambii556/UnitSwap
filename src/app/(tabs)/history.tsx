@@ -1,7 +1,7 @@
 import { AppHeader } from "@/components/AppHeader";
 import { HistoryList } from "@/components/HistoryList"; // Updated import
-import { SearchBar } from "@/components/SearchBar"; // Import SearchBar
 import { ThemedView } from "@/components/themed-view";
+import { SearchBar } from "@/components/ui/SearchBar"; // Import SearchBar
 import { initDb } from "@/database/database"; // Import initDb
 import React, { useEffect, useState } from "react"; // Removed useCallback and unnecessary imports, added useEffect
 import { View } from "react-native";

@@ -1,7 +1,7 @@
 import { CategoryCard } from "@/components/CategoryCard";
 import { RecentConversions } from "@/components/RecentConversions";
-import { SearchBar } from "@/components/SearchBar"; // Import SearchBar
 import { ThemedView } from "@/components/themed-view";
+import { SearchBar } from "@/components/ui/SearchBar"; // Import SearchBar
 import { Conversion } from "@/database/database";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";

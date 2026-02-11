@@ -5,10 +5,11 @@ import {
   getConversions,
   getDb,
   searchConversions,
-} from "@/database/database"; // Added searchConversions
+} from "@/database/database";
+import { useSettings } from "@/providers/SettingsProvider";
 import { formatTimeAgo } from "@/utils/time";
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, View } from "react-native"; // Removed TouchableOpacity
+import { ActivityIndicator, FlatList, View } from "react-native";
 import { ThemedText } from "./themed-text";
 
 interface HistoryListProps {
@@ -30,22 +31,19 @@ export const HistoryList: React.FC<HistoryListProps> = ({
   searchTerm,
   refreshTrigger,
   onConversionPress,
-  infiniteScroll = false, // Default to false
+  infiniteScroll = false,
 }) => {
+  const { settings } = useSettings();
   const [conversions, setConversions] = useState<Conversion[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
-  const [refreshing, setRefreshing] = useState(false); // New state for pull-to-refresh
+  const [refreshing, setRefreshing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
   const fetchConversions = useCallback(
     async (page: number, append: boolean = false) => {
-      console.log(
-        `fetchConversions called: page=${page}, append=${append}, loading=${loading}, loadingMore=${loadingMore}`,
-      );
-
       if (append) {
         setLoadingMore(true);
       } else {
@@ -59,9 +57,6 @@ export const HistoryList: React.FC<HistoryListProps> = ({
       try {
         let fetchedConversions: Conversion[];
         const offset = (page - 1) * ITEMS_PER_PAGE;
-        console.log(
-          `Fetching with offset=${offset}, ITEMS_PER_PAGE=${ITEMS_PER_PAGE}`,
-        );
         const db = await getDb();
         let countResult: { count: number } | null = null;
 
@@ -104,12 +99,10 @@ export const HistoryList: React.FC<HistoryListProps> = ({
           );
         }
 
-        console.log(`Fetched ${fetchedConversions.length} conversions`);
         const newTotalCount = countResult?.count || 0;
         setTotalCount(newTotalCount);
         const more = fetchedConversions.length === ITEMS_PER_PAGE;
         setHasMore(more);
-        console.log(`hasMore set to ${more}, totalCount=${newTotalCount}`);
 
         if (append) {
           setConversions((prev) => {
@@ -118,15 +111,9 @@ export const HistoryList: React.FC<HistoryListProps> = ({
               (item) => !existingIds.has(item.id),
             );
             const newConversions = [...prev, ...uniqueNewConversions];
-            console.log(
-              `Appending: prev=${prev.length}, newUnique=${uniqueNewConversions.length}, total=${newConversions.length}`,
-            );
             return newConversions;
           });
         } else {
-          console.log(
-            `Setting conversions to ${fetchedConversions.length} items`,
-          );
           setConversions(fetchedConversions);
         }
       } catch (error: any) {
@@ -135,7 +122,6 @@ export const HistoryList: React.FC<HistoryListProps> = ({
         setTotalCount(append ? totalCount : 0);
         setHasMore(false);
       } finally {
-        console.log("Setting loading and loadingMore to false");
         setLoading(false);
         setLoadingMore(false);
         setRefreshing(false);
@@ -152,9 +138,6 @@ export const HistoryList: React.FC<HistoryListProps> = ({
   );
 
   useEffect(() => {
-    console.log(
-      "useEffect triggered for searchTerm/categoryKey/refreshTrigger",
-    );
     setHasMore(true); // Reset hasMore when searchTerm or categoryKey changes
     setCurrentPage(1); // Always start from page 1 for new searches/categories
     // Reset conversions to empty to avoid stale data
@@ -162,7 +145,6 @@ export const HistoryList: React.FC<HistoryListProps> = ({
   }, [searchTerm, categoryKey, refreshTrigger]);
 
   const handleRefresh = useCallback(() => {
-    console.log("handleRefresh triggered");
     setRefreshing(true);
     // Do not clear conversions immediately; let new data replace old once fetched
     setCurrentPage(1); // Reset to first page
@@ -191,7 +173,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({
     if (!infiniteScroll || (!loadingMore && !loading)) return null;
     return (
       <View className="mb-[16px]">
-        <ActivityIndicator size="small" color="#007bff" />
+        <ActivityIndicator size="small" color="rgb(var(--color-primary))" />
       </View>
     );
   };
@@ -205,13 +187,15 @@ export const HistoryList: React.FC<HistoryListProps> = ({
       keyExtractor={(item) => item.id!.toString()}
       renderItem={({ item }) => (
         <HistoryItem
-          fromValue={item.inputValue.toString()}
+          fromValue={item.inputValue}
           fromUnit={item.originalUnit}
-          toValue={item.outputValue.toString()}
+          toValue={item.outputValue}
           toUnit={item.convertedUnit}
           timeAgo={formatTimeAgo(item.timestamp)}
           onPress={() => onConversionPress && onConversionPress(item)}
           conversionType={item.conversionType}
+          useScientificNotation={settings.useScientificNotation}
+          thousandSeparator={settings.thousandSeparator}
         />
       )}
       ItemSeparatorComponent={() => <View className="h-2" />}

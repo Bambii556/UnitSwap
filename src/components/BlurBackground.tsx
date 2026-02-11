@@ -1,7 +1,7 @@
 import { BlurTint, BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { View, ViewProps } from "react-native";
+import { useAppTheme } from "@/providers/ThemeProvider";
 import { cn } from "../utils/cn";
 
 interface BlurBackgroundProps extends ViewProps {
@@ -13,30 +13,30 @@ interface BlurBackgroundProps extends ViewProps {
 
 export function BlurBackground({
   intensity = 5,
-  tint = "dark",
+  tint,
   style,
   children,
   className,
   ...rest
 }: BlurBackgroundProps) {
+  const { colorScheme } = useAppTheme();
+  const isDark = colorScheme === "dark";
+
+  // Use theme-appropriate tint if not specified
+  const blurTint = tint || (isDark ? "dark" : "light");
+
   return (
     <View
       className={cn(
-        "rounded-2xl overflow-hidden border border-white/10 bg-gray-800",
+        "rounded-2xl overflow-hidden border border-border bg-card/80",
         className,
       )}
       style={style}
       {...rest}
     >
-      <LinearGradient
-        colors={["rgba(40, 40, 91, 0.05)", "rgba(16, 17, 43, 0.419)"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        className="absolute inset-0"
-      />
       <BlurView
         intensity={intensity}
-        tint={tint}
+        tint={blurTint}
         className="absolute inset-0"
       />
       {children}

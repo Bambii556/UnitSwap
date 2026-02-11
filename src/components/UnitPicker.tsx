@@ -1,5 +1,5 @@
-import { Colors } from "@/constants/theme";
 import { UnitType } from "@/conversions";
+import { useAppTheme } from "@/providers/ThemeProvider";
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
@@ -24,6 +24,8 @@ const UnitPicker: React.FC<UnitPickerProps> = ({
   onValueChange,
   units,
 }) => {
+  const { colors } = useAppTheme();
+
   const [modalVisible, setModalVisible] = useState(false);
   const unitKeys = Object.keys(units);
 
@@ -38,7 +40,7 @@ const UnitPicker: React.FC<UnitPickerProps> = ({
         <ThemedText className="text-m font-medium mr-1 text-muted">
           {selectedUnitLabel}
         </ThemedText>
-        <MaterialIcons name="expand-more" size={16} color={Colors.dark.muted} />
+        <MaterialIcons name="expand-more" size={16} color={colors.muted} />
       </TouchableOpacity>
 
       <Modal
@@ -54,17 +56,13 @@ const UnitPicker: React.FC<UnitPickerProps> = ({
           <View className="w-3/4 rounded-xl bg-card p-4 shadow-lg shadow-black/30">
             <View className="flex-row justify-between items-center mb-4">
               <ThemedText className="text-xl font-bold">
-                Select '{direction}' Unit
+                Select &apos;{direction}&apos; Unit
               </ThemedText>
               <TouchableOpacity
                 onPress={() => setModalVisible(false)}
                 className="p-2"
               >
-                <MaterialIcons
-                  name="close"
-                  size={24}
-                  color={Colors.dark.text}
-                />
+                <MaterialIcons name="close" size={24} color={colors.text} />
               </TouchableOpacity>
             </View>
             <FlatList

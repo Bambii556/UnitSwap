@@ -3,13 +3,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export interface AppSettings {
   theme: "light" | "dark" | "system";
   decimalPlaces: number;
-  thousandSeparator: "," | "." | " " | "none";
+  thousandSeparator: "," | " " | "none";
+  useScientificNotation: boolean;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
   theme: "system",
   decimalPlaces: 2,
   thousandSeparator: ",",
+  useScientificNotation: false,
 };
 
 const SETTINGS_KEY = "app_settings";
