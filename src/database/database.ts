@@ -5,12 +5,12 @@ let _db: SQLite.SQLiteDatabase | null = null; // Declare a module-level variable
 let _dbPromise: Promise<SQLite.SQLiteDatabase> | null = null; // Promise to hold the database opening operation
 
 export const getDb = async () => {
-  console.log(
-    "getDb called. Current _db: ",
-    _db ? "initialized" : "null",
-    ", _dbPromise: ",
-    _dbPromise ? "pending/resolved" : "null",
-  );
+  // console.log(
+  //   "getDb called. Current _db: ",
+  //   _db ? "initialized" : "null",
+  //   ", _dbPromise: ",
+  //   _dbPromise ? "pending/resolved" : "null",
+  // );
 
   if (_db) {
     return _db;
@@ -22,17 +22,17 @@ export const getDb = async () => {
   }
 
   _db = await _dbPromise;
-  console.log(
-    "Database opened (or retrieved). _db: ",
-    _db ? "initialized" : "null",
-  );
+  // console.log(
+  //   "Database opened (or retrieved). _db: ",
+  //   _db ? "initialized" : "null",
+  // );
   return _db;
 };
 
 export const initDb = async () => {
-  console.log("initDb called.");
+  // console.log("initDb called.");
   const db = await getDb();
-  console.log("initDb: Database instance obtained. Executing CREATE TABLE...");
+  // console.log("initDb: Database instance obtained. Executing CREATE TABLE...");
   // Create the conversions table if it doesn&#x27;t exist
   await db.execAsync(
     `CREATE TABLE IF NOT EXISTS conversions (
@@ -45,7 +45,7 @@ export const initDb = async () => {
       timestamp INTEGER NOT NULL
     );`,
   );
-  console.log("initDb: CREATE TABLE command executed.");
+  // console.log("initDb: CREATE TABLE command executed.");
 };
 
 export interface Conversion {

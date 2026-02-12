@@ -1,25 +1,15 @@
 import { ThemedText } from "@/components/themed-text";
-import { ALL_CATEGORIES } from "@/constants/categories";
 import { useAppTheme } from "@/providers/ThemeProvider";
+import { ALL_SEARCHABLE_UNITS } from "@/utils/search-units";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { SearchBar } from "./SearchBar";
 
-interface SearchResult {
-  unitKey: string;
-  fullName: string;
-  symbol: string;
-  categoryName: string;
-  categoryColor: string;
-}
-
 export function SearchableSearchBar({
-  placeholder = "Convert anything...",
   onFocusChange,
 }: {
-  placeholder?: string;
   onFocusChange?: (isFocused: boolean) => void;
 }) {
   const { colors } = useAppTheme();
@@ -31,51 +21,26 @@ export function SearchableSearchBar({
     onFocusChange?.(isFocused);
   }, [isFocused, onFocusChange]);
 
-  // Build searchable units list from all categories
-  const allUnits = useMemo(() => {
-    const units: {
-      unitKey: string;
-      fullName: string;
-      symbol: string;
-      categoryName: string;
-      categoryColor: string;
-    }[] = [];
-    ALL_CATEGORIES.forEach((category) => {
-      const unitSymbols = category.units.split(", ");
-      const fullNames = category.fullNames;
-
-      unitSymbols.forEach((symbol, index) => {
-        units.push({
-          unitKey: `${category.name}-${symbol}`,
-          fullName: fullNames[index] || symbol,
-          symbol: symbol,
-          categoryName: category.name,
-          categoryColor: category.color,
-        });
-      });
-    });
-    return units;
-  }, []);
-
   // Filter units based on search query
   const filteredUnits = useMemo(() => {
     if (!searchQuery.trim()) return [];
 
     const lowerQuery = searchQuery.toLowerCase();
-    return allUnits.filter(
+    return ALL_SEARCHABLE_UNITS.filter(
       (unit) =>
         unit.fullName.toLowerCase().includes(lowerQuery) ||
         unit.symbol.toLowerCase().includes(lowerQuery) ||
         unit.categoryName.toLowerCase().includes(lowerQuery),
     );
-  }, [searchQuery, allUnits]);
+  }, [searchQuery]);
 
-  const handleSelectUnit = (categoryName: string) => {
+  const handleSelectUnit = (categoryName: string, unitSymbol?: string) => {
     setSearchQuery("");
     setIsFocused(false);
+    console.log(`Selected unit: ${categoryName} - ${unitSymbol}`);
     router.push({
       pathname: "/conversion/[type]",
-      params: { type: categoryName },
+      params: { type: categoryName, unit: unitSymbol },
     });
   };
 
@@ -97,7 +62,11 @@ export function SearchableSearchBar({
 
       {/* Dropdown Results */}
       {showDropdown && (
-        <View className="mt-2 bg-card rounded-xl border border-border shadow-lg z-50" pointerEvents="auto" style={{ elevation: 5 }}>
+        <View
+          className="mt-2 bg-card rounded-xl border border-border shadow-lg z-50"
+          pointerEvents="auto"
+          style={{ elevation: 5 }}
+        >
           <FlatList
             data={filteredUnits}
             keyExtractor={(item) => item.unitKey}
@@ -108,7 +77,7 @@ export function SearchableSearchBar({
             className="max-h-[50vh]"
             renderItem={({ item, index }) => (
               <TouchableOpacity
-                onPress={() => handleSelectUnit(item.categoryName)}
+                onPress={() => handleSelectUnit(item.categoryName, item.symbol)}
                 activeOpacity={0.7}
                 className={`flex-row items-center px-4 py-3 active:bg-muted/10 ${
                   index !== filteredUnits.length - 1

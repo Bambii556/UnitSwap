@@ -29,7 +29,7 @@ export default function HomeScreen() {
 
       {/* Search Bar */}
       <View className="mx-4 mt-4 z-50" style={{ elevation: 5 }}>
-        <SearchableSearchBar placeholder="Search units (e.g., meters to feet)" />
+        <SearchableSearchBar />
       </View>
 
       <ScrollView
@@ -38,7 +38,6 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="always"
       >
-      
         <View className="mt-6 px-4 flex-row justify-between items-center">
           <ThemedText className="text-text text-xl font-bold">
             Categories
@@ -58,7 +57,7 @@ export default function HomeScreen() {
             <CategoryCard
               key={category.name}
               title={category.name}
-              units={category.units}
+              units={category.units.map(u => u.unit).join(", ")}
               color={category.color}
               onPress={() =>
                 router.push({

@@ -54,10 +54,6 @@ const ConversionCard: React.FC<ConversionCardProps> = memo(
       setIsEditing(false); // Set isEditing to false on input blur
     };
 
-    useEffect(() => {
-      console.log(`[${title}] inputValue changed:`, inputValue);
-    }, [inputValue, title]);
-
     return (
       <View
         className={cn(

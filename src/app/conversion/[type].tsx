@@ -10,7 +10,7 @@ import { ActivityIndicator, View } from "react-native";
 import { ThemedText } from "../../components/themed-text";
 
 export default function ConversionScreen() {
-  const { type } = useLocalSearchParams();
+  const { type, unit } = useLocalSearchParams();
   const router = useRouter();
   const [dbInitialized, setDbInitialized] = useState(false);
 
@@ -42,7 +42,7 @@ export default function ConversionScreen() {
         }}
       />
       {/* Render the new smart ConversionCard component */}
-      <ConversionCard categoryKey={categoryKey} />
+      <ConversionCard categoryKey={categoryKey} initialUnit={typeof unit === 'string' ? unit : undefined} />
 
       {dbInitialized ? (
         <View className="flex-1 safe-area-inset-bottom">

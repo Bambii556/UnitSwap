@@ -17,10 +17,11 @@ import { ThemedText } from "./themed-text";
 
 interface ConversionContainerProps {
   categoryKey: CategoryKey;
+  initialUnit?: string;
 }
 
 const ConversionContainer: React.FC<ConversionContainerProps> = memo(
-  ({ categoryKey }) => {
+  ({ categoryKey, initialUnit }) => {
     ConversionContainer.displayName = 'ConversionContainer';
     const { formatForConversion } = useNumberFormat();
 
@@ -52,19 +53,29 @@ const ConversionContainer: React.FC<ConversionContainerProps> = memo(
 
     // Effect to reset units and values when category changes
     useEffect(() => {
-      setFromUnit(
-        currentCategory?.baseUnit ||
-          Object.keys(currentCategory?.units || {})[0] ||
-          "",
-      );
+      console.log("ConversionContainer Effect:", { categoryKey, initialUnit, availableUnits: Object.keys(currentCategory?.units || {}) });
+      let firstUnit = "";
+      if (initialUnit) {
+        const matchedUnit = Object.keys(currentCategory?.units || {}).find(
+          (key) => key.toLowerCase() === initialUnit.toLowerCase()
+        );
+        if (matchedUnit) {
+          firstUnit = matchedUnit;
+        }
+      }
+      if (!firstUnit) {
+        firstUnit = currentCategory?.baseUnit || Object.keys(currentCategory?.units || {})[0] || "";
+      }
+      console.log("Setting fromUnit to:", firstUnit);
+      setFromUnit(firstUnit);
       setToUnit(
-        Object.keys(currentCategory?.units || {})[1] ||
-          Object.keys(currentCategory?.units || {})[0] ||
-          "",
+        Object.keys(currentCategory?.units || {}).find(u => u !== firstUnit) ||
+        Object.keys(currentCategory?.units || {})[0] ||
+        "",
       );
       setFromValue("0");
       setToValue("0");
-    }, [categoryKey, currentCategory]);
+    }, [categoryKey, currentCategory, initialUnit]);
 
     // Effect to fetch currency rates
     useEffect(() => {

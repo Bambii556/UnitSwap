@@ -18,8 +18,11 @@ export default function TabLayout() {
   const insets = useSafeAreaInsets();
   const { colors } = useAppTheme();
 
-  // For Android, don't add bottom inset since we're hiding the nav bar
-  const bottomPadding = Platform.OS === 'ios' ? insets.bottom : 8;
+  // Detect if system navigation bar is visible
+  // On Android with edge-to-edge, if insets.bottom > 0, the nav bar is showing
+  // On iOS, always respect the safe area
+  const hasBottomNavBar = Platform.OS === 'android' && insets.bottom > 20;
+  const bottomPadding = Platform.OS === 'ios' ? insets.bottom : (hasBottomNavBar ? insets.bottom : 8);
 
   return (
     <Tabs
