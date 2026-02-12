@@ -14,6 +14,22 @@ describe('Weight Converter', () => {
       expect(convertWeight(1000, 'g', 'kg')).toBe(1);
     });
 
+    it('should convert kg to mg', () => {
+      expect(convertWeight(1, 'kg', 'mg')).toBe(1000000);
+    });
+
+    it('should convert mg to kg', () => {
+      expect(convertWeight(1000000, 'mg', 'kg')).toBe(1);
+    });
+
+    it('should convert g to mg', () => {
+      expect(convertWeight(1, 'g', 'mg')).toBeCloseTo(1000, 10);
+    });
+
+    it('should convert mg to g', () => {
+      expect(convertWeight(1000, 'mg', 'g')).toBe(1);
+    });
+
     it('should convert kg to lb', () => {
       expect(convertWeight(1, 'kg', 'lb')).toBeCloseTo(2.20462, 5);
     });
@@ -77,7 +93,7 @@ describe('Weight Converter', () => {
     });
 
     it('should have all required units', () => {
-      const expectedUnits = ['kg', 'g', 'lb', 'oz', 'ton'];
+      const expectedUnits = ['kg', 'g', 'mg', 'lb', 'oz', 'ton'];
       const actualUnits = Object.keys(weightCategory.units);
       
       expectedUnits.forEach(unit => {

@@ -6,6 +6,14 @@ describe('Length Converter', () => {
       expect(convertLength(5, 'm', 'm')).toBe(5);
     });
 
+    it('should convert m to mm', () => {
+      expect(convertLength(1, 'm', 'mm')).toBe(1000);
+    });
+
+    it('should convert mm to m', () => {
+      expect(convertLength(1000, 'mm', 'm')).toBe(1);
+    });
+
     it('should convert m to cm', () => {
       expect(convertLength(1, 'm', 'cm')).toBe(100);
     });
@@ -54,6 +62,14 @@ describe('Length Converter', () => {
       expect(convertLength(1, 'mi', 'km')).toBeCloseTo(1.60934, 5);
     });
 
+    it('should convert m to nautical miles', () => {
+      expect(convertLength(1852, 'm', 'nmi')).toBeCloseTo(1, 5);
+    });
+
+    it('should convert nautical miles to m', () => {
+      expect(convertLength(1, 'nmi', 'm')).toBe(1852);
+    });
+
     it('should convert feet to inches', () => {
       expect(convertLength(1, 'ft', 'in')).toBeCloseTo(12, 0);
     });
@@ -97,7 +113,7 @@ describe('Length Converter', () => {
     });
 
     it('should have all required units', () => {
-      const expectedUnits = ['m', 'cm', 'in', 'ft', 'yd', 'km', 'mi'];
+      const expectedUnits = ['m', 'mm', 'cm', 'in', 'ft', 'yd', 'km', 'mi', 'nmi'];
       const actualUnits = Object.keys(lengthCategory.units);
       
       expectedUnits.forEach(unit => {

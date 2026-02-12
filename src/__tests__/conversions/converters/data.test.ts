@@ -2,92 +2,92 @@ import { convertData, dataCategory } from '@/conversions/converters/data';
 
 describe('Data Converter', () => {
   describe('convertData function', () => {
-    it('should convert byte to byte (same unit)', () => {
-      expect(convertData(1024, 'byte', 'byte')).toBe(1024);
+    it('should convert B to B (same unit)', () => {
+      expect(convertData(1024, 'B', 'B')).toBe(1024);
     });
 
     it('should convert bytes to kilobytes', () => {
-      expect(convertData(1024, 'byte', 'kb')).toBe(1);
+      expect(convertData(1024, 'B', 'KB')).toBe(1);
     });
 
     it('should convert kilobytes to bytes', () => {
-      expect(convertData(1, 'kb', 'byte')).toBe(1024);
+      expect(convertData(1, 'KB', 'B')).toBe(1024);
     });
 
     it('should convert kilobytes to megabytes', () => {
-      expect(convertData(1024, 'kb', 'mb')).toBe(1);
+      expect(convertData(1024, 'KB', 'MB')).toBe(1);
     });
 
     it('should convert megabytes to kilobytes', () => {
-      expect(convertData(1, 'mb', 'kb')).toBe(1024);
+      expect(convertData(1, 'MB', 'KB')).toBe(1024);
     });
 
     it('should convert megabytes to gigabytes', () => {
-      expect(convertData(1024, 'mb', 'gb')).toBe(1);
+      expect(convertData(1024, 'MB', 'GB')).toBe(1);
     });
 
     it('should convert gigabytes to megabytes', () => {
-      expect(convertData(1, 'gb', 'mb')).toBe(1024);
+      expect(convertData(1, 'GB', 'MB')).toBe(1024);
     });
 
     it('should convert gigabytes to terabytes', () => {
-      expect(convertData(1024, 'gb', 'tb')).toBe(1);
+      expect(convertData(1024, 'GB', 'TB')).toBe(1);
     });
 
     it('should convert terabytes to gigabytes', () => {
-      expect(convertData(1, 'tb', 'gb')).toBe(1024);
+      expect(convertData(1, 'TB', 'GB')).toBe(1024);
     });
 
     it('should convert bytes to megabytes', () => {
-      expect(convertData(1024 * 1024, 'byte', 'mb')).toBe(1);
+      expect(convertData(1024 * 1024, 'B', 'MB')).toBe(1);
     });
 
     it('should convert bytes to gigabytes', () => {
-      expect(convertData(1024 * 1024 * 1024, 'byte', 'gb')).toBe(1);
+      expect(convertData(1024 * 1024 * 1024, 'B', 'GB')).toBe(1);
     });
 
     it('should convert bytes to terabytes', () => {
-      expect(convertData(1024 * 1024 * 1024 * 1024, 'byte', 'tb')).toBe(1);
+      expect(convertData(1024 * 1024 * 1024 * 1024, 'B', 'TB')).toBe(1);
     });
 
     it('should handle decimal values', () => {
-      expect(convertData(512, 'byte', 'kb')).toBe(0.5);
-      expect(convertData(0.5, 'kb', 'byte')).toBe(512);
+      expect(convertData(512, 'B', 'KB')).toBe(0.5);
+      expect(convertData(0.5, 'KB', 'B')).toBe(512);
     });
 
     it('should return null for null value', () => {
-      expect(convertData(null as any, 'byte', 'kb')).toBeNull();
+      expect(convertData(null as any, 'B', 'KB')).toBeNull();
     });
 
     it('should return null for NaN value', () => {
-      expect(convertData(NaN, 'byte', 'kb')).toBeNull();
+      expect(convertData(NaN, 'B', 'KB')).toBeNull();
     });
 
     it('should return null for invalid from unit', () => {
-      expect(convertData(1024, 'invalid', 'byte')).toBeNull();
+      expect(convertData(1024, 'invalid', 'B')).toBeNull();
     });
 
     it('should return null for invalid to unit', () => {
-      expect(convertData(1024, 'byte', 'invalid')).toBeNull();
+      expect(convertData(1024, 'B', 'invalid')).toBeNull();
     });
 
     it('should handle zero value', () => {
-      expect(convertData(0, 'byte', 'kb')).toBe(0);
+      expect(convertData(0, 'B', 'KB')).toBe(0);
     });
 
     it('should handle negative values', () => {
-      expect(convertData(-1024, 'byte', 'kb')).toBe(-1);
+      expect(convertData(-1024, 'B', 'KB')).toBe(-1);
     });
 
     it('should handle large numbers correctly', () => {
       const tbInBytes = 1024 * 1024 * 1024 * 1024;
-      expect(convertData(2, 'tb', 'byte')).toBe(tbInBytes * 2);
+      expect(convertData(2, 'TB', 'B')).toBe(tbInBytes * 2);
     });
 
     it('should convert between non-adjacent units', () => {
-      expect(convertData(1, 'mb', 'byte')).toBe(1024 * 1024);
-      expect(convertData(1, 'gb', 'kb')).toBe(1024 * 1024);
-      expect(convertData(1, 'tb', 'mb')).toBe(1024 * 1024);
+      expect(convertData(1, 'MB', 'B')).toBe(1024 * 1024);
+      expect(convertData(1, 'GB', 'KB')).toBe(1024 * 1024);
+      expect(convertData(1, 'TB', 'MB')).toBe(1024 * 1024);
     });
   });
 
@@ -97,11 +97,11 @@ describe('Data Converter', () => {
     });
 
     it('should have correct base unit', () => {
-      expect(dataCategory.baseUnit).toBe('byte');
+      expect(dataCategory.baseUnit).toBe('B');
     });
 
     it('should have all required units', () => {
-      const expectedUnits = ['byte', 'kb', 'mb', 'gb', 'tb'];
+      const expectedUnits = ['B', 'KB', 'MB', 'GB', 'TB'];
       const actualUnits = Object.keys(dataCategory.units);
       
       expectedUnits.forEach(unit => {
@@ -110,10 +110,10 @@ describe('Data Converter', () => {
     });
 
     it('should have proper unit structure', () => {
-      const byteUnit = dataCategory.units.byte;
-      expect(byteUnit.label).toBe('Bytes');
-      expect(byteUnit.symbol).toBe('B');
-      expect(typeof byteUnit.toBase).toBe('function');
+      const bUnit = dataCategory.units.B;
+      expect(bUnit.label).toBe('Bytes');
+      expect(bUnit.symbol).toBe('B');
+      expect(typeof bUnit.toBase).toBe('function');
     });
 
     it('should have convert function', () => {

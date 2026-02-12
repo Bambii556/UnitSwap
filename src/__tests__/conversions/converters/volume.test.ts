@@ -30,6 +30,22 @@ describe('Volume Converter', () => {
       expect(convertVolume(1, 'fl_oz', 'ml')).toBeCloseTo(29.5735, 4);
     });
 
+    it('should convert gal to ml', () => {
+      expect(convertVolume(1, 'gal', 'ml')).toBeCloseTo(3785.41, 2);
+    });
+
+    it('should convert ml to gal', () => {
+      expect(convertVolume(3785.41, 'ml', 'gal')).toBeCloseTo(1, 5);
+    });
+
+    it('should convert L to gal', () => {
+      expect(convertVolume(3.78541, 'L', 'gal')).toBeCloseTo(1, 5);
+    });
+
+    it('should convert gal to L', () => {
+      expect(convertVolume(1, 'gal', 'L')).toBeCloseTo(3.78541, 5);
+    });
+
     it('should convert L to cups', () => {
       expect(convertVolume(0.236588, 'L', 'cup')).toBeCloseTo(1, 5);
     });
@@ -73,7 +89,7 @@ describe('Volume Converter', () => {
     });
 
     it('should have all required units', () => {
-      const expectedUnits = ['ml', 'L', 'tsp', 'tbsp', 'cup', 'fl_oz'];
+      const expectedUnits = ['ml', 'L', 'tsp', 'tbsp', 'cup', 'fl_oz', 'gal'];
       const actualUnits = Object.keys(volumeCategory.units);
       
       expectedUnits.forEach(unit => {
