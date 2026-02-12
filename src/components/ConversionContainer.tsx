@@ -17,10 +17,11 @@ import { ThemedText } from "./themed-text";
 interface ConversionContainerProps {
   categoryKey: CategoryKey;
   initialUnit?: string;
+  onHistoryUpdate?: () => void;
 }
 
 const ConversionContainer: React.FC<ConversionContainerProps> = memo(
-  ({ categoryKey, initialUnit }) => {
+  ({ categoryKey, initialUnit, onHistoryUpdate }) => {
     ConversionContainer.displayName = "ConversionContainer";
     const { formatForConversion } = useNumberFormat();
 
@@ -148,7 +149,10 @@ const ConversionContainer: React.FC<ConversionContainerProps> = memo(
             conversionType: categoryKey,
             timestamp: Date.now(),
           })
-            .then(() => setRefreshTrigger((prev) => prev + 1))
+            .then(() => {
+              setRefreshTrigger((prev) => prev + 1);
+              onHistoryUpdate?.();
+            })
             .catch((error: Error) =>
               console.error("Failed to save conversion", error),
             );
@@ -165,6 +169,7 @@ const ConversionContainer: React.FC<ConversionContainerProps> = memo(
       categoryKey,
       convertValue,
       formatForConversion,
+      onHistoryUpdate,
     ]);
 
     const handleSwapPress = useCallback(() => {

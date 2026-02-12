@@ -2,14 +2,13 @@ import { Theme } from "@/constants/theme";
 import {
   DarkTheme,
   DefaultTheme,
-  ThemeProvider as NavigationThemeProvider,
 } from "@react-navigation/native";
 import React, { createContext, useContext, useMemo } from "react";
 import { useColorScheme as useSystemColorScheme, View } from "react-native";
 import { SettingsContext } from "./SettingsProvider";
 
 // Navigation themes for React Navigation
-const NavigationLightTheme = {
+export const NavigationLightTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
@@ -21,7 +20,7 @@ const NavigationLightTheme = {
   },
 };
 
-const NavigationDarkTheme = {
+export const NavigationDarkTheme = {
   ...DarkTheme,
   colors: {
     ...DarkTheme.colors,
@@ -37,6 +36,7 @@ interface ThemeContextType {
   colorScheme: "light" | "dark";
   colors: typeof Theme.light;
   isDark: boolean;
+  navigationTheme: typeof NavigationLightTheme;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -63,12 +63,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const navigationTheme = isDark ? NavigationDarkTheme : NavigationLightTheme;
 
   return (
-    <ThemeContext.Provider value={{ colorScheme, colors, isDark }}>
-      <NavigationThemeProvider value={navigationTheme}>
-        <View className={`flex-1 bg-background ${colorScheme}`}>
-          {children}
-        </View>
-      </NavigationThemeProvider>
+    <ThemeContext.Provider value={{ colorScheme, colors, isDark, navigationTheme }}>
+      {children}
     </ThemeContext.Provider>
   );
 }

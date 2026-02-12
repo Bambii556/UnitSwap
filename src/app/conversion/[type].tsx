@@ -5,12 +5,13 @@ import { HistoryList } from "@/components/HistoryList";
 import { ThemedView } from "@/components/themed-view";
 import { CategoryKey, conversionModules } from "@/conversions";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { View } from "react-native";
 
 export default function ConversionScreen() {
   const { type, unit } = useLocalSearchParams();
   const router = useRouter();
+  const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
 
   const categoryKey =
     typeof type === "string" ? (type.toLowerCase() as CategoryKey) : "length";
@@ -30,6 +31,7 @@ export default function ConversionScreen() {
       <ConversionCard
         categoryKey={categoryKey}
         initialUnit={typeof unit === "string" ? unit : undefined}
+        onHistoryUpdate={() => setHistoryRefreshTrigger(prev => prev + 1)}
       />
 
       <View className="flex-1 safe-area-inset-bottom">
@@ -37,6 +39,7 @@ export default function ConversionScreen() {
           listType="category"
           categoryKey={categoryKey}
           currentCategory={currentCategory}
+          refreshTrigger={historyRefreshTrigger}
           onConversionPress={(item) => {
             console.log("Tapped on category conversion:", item);
           }}

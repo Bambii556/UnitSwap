@@ -57,7 +57,7 @@ export function HistoryItem({
 
   return (
     <TouchableOpacity className="px-4" onPress={onPress}>
-      <BlurBackground className="flex-row items-center p-3 rounded-xl bg-cardSecond">
+      <BlurBackground className="flex-row items-center p-3 rounded-xl bg-card">
         {/* Icon */}
         <View className="flex-shrink-0 mr-3">
           <CategoryIcon

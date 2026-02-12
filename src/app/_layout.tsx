@@ -10,6 +10,7 @@ import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
 import { ActivityIndicator, Platform, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { ThemeProvider as NavigationThemeProvider } from "@react-navigation/native";
 import "../global.css";
 import { SettingsProvider } from "../providers/SettingsProvider";
 import { ThemeProvider, useAppTheme } from "../providers/ThemeProvider";
@@ -84,22 +85,24 @@ function AppContent() {
 }
 
 function RootLayoutContent() {
-  const { colorScheme } = useAppTheme();
+  const { colorScheme, navigationTheme } = useAppTheme();
 
   return (
-    <>
-      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="conversion/[type]"
-          options={{
-            presentation:
-              Platform.OS === "android" ? "containedModal" : "modal",
-            headerShown: false,
-          }}
-        />
-      </Stack>
-    </>
+    <NavigationThemeProvider value={navigationTheme}>
+      <View className={`flex-1 bg-background ${colorScheme}`}>
+        <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="conversion/[type]"
+            options={{
+              presentation:
+                Platform.OS === "android" ? "containedModal" : "modal",
+              headerShown: false,
+            }}
+          />
+        </Stack>
+      </View>
+    </NavigationThemeProvider>
   );
 }
