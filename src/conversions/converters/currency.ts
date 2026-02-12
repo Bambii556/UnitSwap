@@ -4,6 +4,14 @@ const currencyUnits: Record<string, UnitType> = {
   USD: { label: "USD ($)", symbol: "$" },
   EUR: { label: "EUR (€)", symbol: "€" },
   GBP: { label: "GBP (£)", symbol: "£" },
+  JPY: { label: "JPY (¥)", symbol: "¥" },
+  CAD: { label: "CAD ($)", symbol: "C$" },
+  AUD: { label: "AUD ($)", symbol: "A$" },
+  CHF: { label: "CHF (Fr)", symbol: "Fr" },
+  CNY: { label: "CNY (¥)", symbol: "元" },
+  INR: { label: "INR (₹)", symbol: "₹" },
+  BRL: { label: "BRL (R$)", symbol: "R$" },
+  RUB: { label: "RUB (₽)", symbol: "₽" },
   ZAR: { label: "ZAR (R)", symbol: "R" },
 };
 
@@ -50,6 +58,14 @@ export async function fetchCurrencyRates(): Promise<CurrencyRates | null> {
     USD: 1,
     EUR: 0.92, // Example rate
     GBP: 0.79, // Example rate
+    JPY: 149.5, // Example rate
+    CAD: 1.36, // Example rate
+    AUD: 1.52, // Example rate
+    CHF: 0.88, // Example rate
+    CNY: 7.24, // Example rate
+    INR: 83.12, // Example rate
+    BRL: 4.95, // Example rate
+    RUB: 92.5, // Example rate
     ZAR: 18.5, // Example rate
   };
 }

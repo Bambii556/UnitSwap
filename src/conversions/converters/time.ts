@@ -1,7 +1,7 @@
 import { CategoryType, UnitType } from "../index";
 
 const timeUnits: Record<string, UnitType> = {
-  s: { label: "Seconds", symbol: "s", toBase: (v) => v },
+  sec: { label: "Seconds", symbol: "s", toBase: (v) => v },
   min: { label: "Minutes", symbol: "min", toBase: (v) => v * 60 },
   hr: { label: "Hours", symbol: "hr", toBase: (v) => v * 3600 },
   day: { label: "Days", symbol: "day", toBase: (v) => v * 86400 },
@@ -20,7 +20,7 @@ const timeUnits: Record<string, UnitType> = {
 
 export const timeCategory: CategoryType = {
   name: "Time",
-  baseUnit: "s",
+  baseUnit: "sec",
   units: timeUnits,
   convert: convertTime,
 };

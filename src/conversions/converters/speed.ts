@@ -1,15 +1,16 @@
 import { CategoryType, UnitType } from "../index";
 
 const speedUnits: Record<string, UnitType> = {
-  kph: { label: "Kilometers/Hour", symbol: "km/h", toBase: (v) => v },
+  "km/h": { label: "Kilometers/Hour", symbol: "km/h", toBase: (v) => v },
   mph: { label: "Miles/Hour", symbol: "mph", toBase: (v) => v * 1.60934 }, // 1 mph is 1.60934 kph
-  mps: { label: "Meters/Second", symbol: "m/s", toBase: (v) => v * 3.6 }, // 1 m/s is 3.6 kph
-  fps: { label: "Feet/Second", symbol: "ft/s", toBase: (v) => v * 1.09728 }, // 1 fps is 1.09728 kph
+  "m/s": { label: "Meters/Second", symbol: "m/s", toBase: (v) => v * 3.6 }, // 1 m/s is 3.6 kph
+  knot: { label: "Knots", symbol: "knot", toBase: (v) => v * 1.852 }, // 1 knot is 1.852 kph
+  "ft/s": { label: "Feet/Second", symbol: "ft/s", toBase: (v) => v * 1.09728 }, // 1 fps is 1.09728 kph
 };
 
 export const speedCategory: CategoryType = {
   name: "Speed",
-  baseUnit: "kph",
+  baseUnit: "km/h",
   units: speedUnits,
   convert: convertSpeed,
 };

@@ -6,7 +6,8 @@ const volumeUnits: Record<string, UnitType> = {
   tsp: { label: "Teaspoons", symbol: "tsp", toBase: (v) => v * 4.92892 }, // approx
   tbsp: { label: "Tablespoons", symbol: "tbsp", toBase: (v) => v * 14.7868 }, // approx
   cup: { label: "Cups (US)", symbol: "cup", toBase: (v) => v * 236.588 }, // approx
-  fl_oz: { label: "Fluid Ounces", symbol: "fl oz", toBase: (v) => v * 29.5735 }, // approx
+  "fl_oz": { label: "Fluid Ounces", symbol: "fl oz", toBase: (v) => v * 29.5735 }, // approx
+  gal: { label: "Gallons (US)", symbol: "gal", toBase: (v) => v * 3785.41 }, // US gallon
 };
 
 export const volumeCategory: CategoryType = {

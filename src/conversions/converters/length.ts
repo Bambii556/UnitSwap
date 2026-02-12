@@ -2,12 +2,14 @@ import { CategoryType, UnitType } from "../index";
 
 const lengthUnits: Record<string, UnitType> = {
   m: { label: "Meters", symbol: "m", toBase: (v) => v },
+  mm: { label: "Millimeters", symbol: "mm", toBase: (v) => v / 1000 },
   cm: { label: "Centimeters", symbol: "cm", toBase: (v) => v / 100 },
   in: { label: "Inches", symbol: "in", toBase: (v) => v * 0.0254 },
   ft: { label: "Feet", symbol: "ft", toBase: (v) => v * 0.3048 },
   yd: { label: "Yards", symbol: "yd", toBase: (v) => v * 0.9144 },
   km: { label: "Kilometers", symbol: "km", toBase: (v) => v * 1000 },
   mi: { label: "Miles", symbol: "mi", toBase: (v) => v * 1609.34 },
+  nmi: { label: "Nautical Miles", symbol: "nmi", toBase: (v) => v * 1852 },
 };
 
 export const lengthCategory: CategoryType = {
