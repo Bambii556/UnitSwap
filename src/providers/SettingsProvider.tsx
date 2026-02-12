@@ -18,20 +18,28 @@ interface SettingsContextType {
   settings: AppSettings;
   updateSettings: (newSettings: Partial<AppSettings>) => void;
   colorScheme: "light" | "dark";
+  isLoading: boolean;
 }
 
-const SettingsContext = createContext<SettingsContextType | undefined>(
+export const SettingsContext = createContext<SettingsContextType | undefined>(
   undefined,
 );
 
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const systemColorScheme = useSystemColorScheme();
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadAppSettings = async () => {
-      const savedSettings = await getSettings();
-      setSettings(savedSettings);
+      try {
+        const savedSettings = await getSettings();
+        setSettings(savedSettings);
+      } catch (error) {
+        console.error("Failed to load settings:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
     loadAppSettings();
   }, []);
@@ -53,6 +61,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     settings,
     updateSettings,
     colorScheme,
+    isLoading,
   };
 
   return (

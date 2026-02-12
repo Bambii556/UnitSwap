@@ -6,7 +6,7 @@ import {
 } from "@react-navigation/native";
 import React, { createContext, useContext, useMemo } from "react";
 import { useColorScheme as useSystemColorScheme, View } from "react-native";
-import { useSettings } from "./SettingsProvider";
+import { SettingsContext } from "./SettingsProvider";
 
 // Navigation themes for React Navigation
 const NavigationLightTheme = {
@@ -42,16 +42,21 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const { settings } = useSettings();
+  const settingsContext = useContext(SettingsContext);
   const systemColorScheme = useSystemColorScheme();
 
-  // Determine active theme based on settings
+  // Default to dark if settings context is not available yet
   const colorScheme = useMemo<"light" | "dark">(() => {
-    if (settings.theme === "system") {
+    if (!settingsContext) {
+      console.log("[ThemeProvider] Settings context not available, defaulting to dark");
+      return "dark";
+    }
+    const themeSetting = settingsContext.settings?.theme ?? "dark";
+    if (themeSetting === "system") {
       return systemColorScheme === "dark" ? "dark" : "light";
     }
-    return settings.theme;
-  }, [settings.theme, systemColorScheme]);
+    return themeSetting;
+  }, [settingsContext?.settings?.theme, systemColorScheme]);
 
   const colors = useMemo(() => Theme[colorScheme], [colorScheme]);
   const isDark = colorScheme === "dark";

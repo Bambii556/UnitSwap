@@ -1,4 +1,6 @@
 import { initDb } from "@/database/database";
+import { useAdMob } from "@/hooks/useAdMob";
+import { useSettings } from "@/providers/SettingsProvider";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
@@ -6,7 +8,7 @@ import * as NavigationBar from "expo-navigation-bar";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
-import { Platform } from "react-native";
+import { ActivityIndicator, Platform, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../global.css";
 import { SettingsProvider } from "../providers/SettingsProvider";
@@ -33,12 +35,6 @@ export default function RootLayout() {
   }, [error]);
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  useEffect(() => {
     if (Platform.OS === 'android') {
       NavigationBar.setVisibilityAsync('hidden');
       NavigationBar.setBehaviorAsync('inset-swipe');
@@ -57,11 +53,34 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <SettingsProvider>
         <ThemeProvider>
-          <RootLayoutContent />
+          <AppContent />
         </ThemeProvider>
       </SettingsProvider>
     </SafeAreaProvider>
   );
+}
+
+function AppContent() {
+  const { isLoading } = useSettings();
+  
+  // Initialize AdMob after settings are loaded
+  useAdMob();
+  
+  useEffect(() => {
+    if (!isLoading) {
+      SplashScreen.hideAsync();
+    }
+  }, [isLoading]);
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-background">
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  return <RootLayoutContent />;
 }
 
 function RootLayoutContent() {

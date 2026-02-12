@@ -2,7 +2,7 @@ import { IconSymbol, IconSymbolName } from "@/components/ui/icon-symbol";
 import { useAppTheme } from "@/providers/ThemeProvider";
 import { Tabs } from "expo-router";
 import React from "react";
-import { Platform } from "react-native";
+import { ActivityIndicator, Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface TabBarIconProps {
@@ -16,7 +16,20 @@ function TabBarIcon({ name, color }: TabBarIconProps) {
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
-  const { colors } = useAppTheme();
+  
+  // Safety check - if theme is not available, show loading
+  let colors;
+  try {
+    const theme = useAppTheme();
+    colors = theme.colors;
+  } catch (error) {
+    // Theme not ready yet, show loading
+    return (
+      <View className="flex-1 items-center justify-center bg-background">
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   // Detect if system navigation bar is visible
   // On Android with edge-to-edge, if insets.bottom > 0, the nav bar is showing

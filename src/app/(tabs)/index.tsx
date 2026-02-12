@@ -1,3 +1,4 @@
+import { AdBanner } from "@/components/AdBanner";
 import { CategoryCard } from "@/components/CategoryCard";
 import { RecentConversions } from "@/components/RecentConversions";
 import { ThemedView } from "@/components/themed-view";
@@ -57,7 +58,7 @@ export default function HomeScreen() {
             <CategoryCard
               key={category.name}
               title={category.name}
-              units={category.units.map(u => u.unit).join(", ")}
+              units={category.units.map((u) => u.unit).join(", ")}
               color={category.color}
               onPress={() =>
                 router.push({
@@ -67,6 +68,11 @@ export default function HomeScreen() {
               }
             />
           ))}
+        </View>
+
+        {/* Banner Ad */}
+        <View className="px-4 mt-4">
+          <AdBanner placement="homeBanner" />
         </View>
 
         {/* Latest Conversions */}

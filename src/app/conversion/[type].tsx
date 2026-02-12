@@ -1,10 +1,11 @@
+import { AdBanner } from "@/components/AdBanner";
 import { AppHeader } from "@/components/AppHeader";
-import ConversionCard from "@/components/ConversionContainer"; // Import the new smart ConversionCard
+import ConversionCard from "@/components/ConversionContainer";
 import { HistoryList } from "@/components/HistoryList";
 import { ThemedView } from "@/components/themed-view";
 import { CategoryKey, conversionModules } from "@/conversions";
 import { initDb } from "@/database/database";
-import { useLocalSearchParams, useRouter } from "expo-router"; // Removed useRouter as it's not directly used here now
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { ThemedText } from "../../components/themed-text";
@@ -64,6 +65,11 @@ export default function ConversionScreen() {
           <ThemedText className="mt-4">Loading conversions...</ThemedText>
         </View>
       )}
+
+      {/* Banner Ad */}
+      <View className="mt-2">
+        <AdBanner placement="conversionBanner" />
+      </View>
     </ThemedView>
   );
 }

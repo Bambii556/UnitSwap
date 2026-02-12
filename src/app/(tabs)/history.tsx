@@ -1,9 +1,10 @@
+import { AdBanner } from "@/components/AdBanner";
 import { AppHeader } from "@/components/AppHeader";
-import { HistoryList } from "@/components/HistoryList"; // Updated import
+import { HistoryList } from "@/components/HistoryList";
 import { ThemedView } from "@/components/themed-view";
-import { SearchBar } from "@/components/ui/SearchBar"; // Import SearchBar
-import { initDb } from "@/database/database"; // Import initDb
-import React, { useEffect, useState } from "react"; // Removed useCallback and unnecessary imports, added useEffect
+import { SearchBar } from "@/components/ui/SearchBar";
+import { initDb } from "@/database/database";
+import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 
 export default function HistoryScreen() {
@@ -32,12 +33,16 @@ export default function HistoryScreen() {
         <HistoryList
           listType="all"
           searchTerm={searchTerm}
-          infiniteScroll={true} // Enable infinite scroll for history page
+          infiniteScroll={true}
           onConversionPress={(item) => {
             console.log("Tapped on history item:", item);
-            // TODO: Optionally navigate back to conversion screen with pre-filled values
           }}
         />
+      </View>
+
+      {/* Banner Ad */}
+      <View className="px-4 py-2">
+        <AdBanner placement="historyBanner" />
       </View>
     </ThemedView>
   );
