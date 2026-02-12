@@ -1,54 +1,64 @@
 import { AdPlacement, AdUnits } from "@/utils/admob";
-import React, { useState } from "react";
-import { View, StyleSheet, Text } from "react-native";
-
-// Safely import the AdMob module
-let BannerAd: any;
-let BannerAdSize: any;
-let TestIds: any;
-let isAdMobAvailable = false;
-
-try {
-  const GoogleMobileAds = require("react-native-google-mobile-ads");
-  BannerAd = GoogleMobileAds.BannerAd;
-  BannerAdSize = GoogleMobileAds.BannerAdSize;
-  TestIds = GoogleMobileAds.TestIds;
-  isAdMobAvailable = true;
-} catch (error) {
-  console.warn("[AdBanner] react-native-google-mobile-ads not available. Run prebuild to enable ads.");
-}
+import React, { useState, useEffect } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import {
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+} from "react-native-google-mobile-ads";
 
 interface AdBannerProps {
   placement: AdPlacement;
-  size?: any;
 }
 
-export const AdBanner: React.FC<AdBannerProps> = ({
-  placement,
-  size = BannerAdSize?.BANNER || "BANNER",
-}) => {
+export const AdBanner: React.FC<AdBannerProps> = ({ placement }) => {
   const [failed, setFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [isTestMode, setIsTestMode] = useState(true); // Test mode for development
 
-  // Show placeholder if AdMob is not available
-  if (!isAdMobAvailable) {
+  useEffect(() => {
+    const setupTestDevices = async () => {
+      if (__DEV__ && isTestMode) {
+        try {
+          // Test device setup - in development, we can use TestIds directly
+          console.log("[AdBanner] Development mode detected - test ads will be used");
+        } catch (err) {
+          console.warn("[AdBanner] Failed to set up test devices:", err);
+        }
+      }
+    };
+    setupTestDevices();
+  }, [isTestMode]);
+
+  const adUnitId = AdUnits[placement];
+  // Use test ID in development mode, otherwise use real ad unit ID
+  const unitId = __DEV__ ? TestIds?.BANNER : adUnitId;
+
+  if (!BannerAd) {
     return (
-      <View style={[styles.container, styles.redBorder, styles.placeholderContainer]}>
+      <View
+        style={[
+          styles.container,
+          styles.redBorder,
+          styles.placeholderContainer,
+        ]}
+      >
         <View style={styles.borderLabel}>
           <Text style={styles.borderLabelText}>AD: {placement}</Text>
         </View>
-        <Text style={styles.placeholderText}>Ad Placeholder</Text>
-        <Text style={styles.placeholderSubtext}>Run prebuild to enable ads</Text>
+        <Text style={styles.placeholderText}>AdMob Not Initialized</Text>
+        <Text style={styles.placeholderSubtext}>
+          Ensure react-native-google-mobile-ads is installed and configured.
+        </Text>
       </View>
     );
   }
 
-  const adUnitId = AdUnits[placement];
-  const unitId = __DEV__ ? TestIds?.BANNER : adUnitId;
-
   if (failed) {
     return (
-      <View style={[styles.container, styles.redBorder, styles.failedContainer]}>
+      <View
+        style={[styles.container, styles.redBorder, styles.failedContainer]}
+      >
         <Text style={styles.failedText}>Ad Failed to Load</Text>
         <Text style={styles.placementText}>{placement}</Text>
       </View>
@@ -61,11 +71,14 @@ export const AdBanner: React.FC<AdBannerProps> = ({
       <View style={styles.borderLabel}>
         <Text style={styles.borderLabelText}>AD: {placement}</Text>
       </View>
-      
-      {unitId && BannerAd && (
+
+      {unitId && (
         <BannerAd
-          size={size}
+          size={BannerAdSize.INLINE_ADAPTIVE_BANNER}
           unitId={unitId}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+          }}
           onAdLoaded={() => {
             console.log(`[AdBanner] ${placement} loaded successfully`);
             setLoaded(true);
@@ -76,7 +89,7 @@ export const AdBanner: React.FC<AdBannerProps> = ({
           }}
         />
       )}
-      
+
       {!loaded && !failed && (
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Loading Ad...</Text>

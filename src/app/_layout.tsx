@@ -2,15 +2,15 @@ import { initDb } from "@/database/database";
 import { useAdMob } from "@/hooks/useAdMob";
 import { useSettings } from "@/providers/SettingsProvider";
 import { MaterialIcons } from "@expo/vector-icons";
+import { ThemeProvider as NavigationThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
 import * as NavigationBar from "expo-navigation-bar";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
 import { ActivityIndicator, Platform, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { ThemeProvider as NavigationThemeProvider } from "@react-navigation/native";
 import "../global.css";
 import { SettingsProvider } from "../providers/SettingsProvider";
 import { ThemeProvider, useAppTheme } from "../providers/ThemeProvider";
@@ -36,9 +36,9 @@ export default function RootLayout() {
   }, [error]);
 
   useEffect(() => {
-    if (Platform.OS === 'android') {
-      NavigationBar.setVisibilityAsync('hidden');
-      NavigationBar.setBehaviorAsync('inset-swipe');
+    if (Platform.OS === "android") {
+      NavigationBar.setVisibilityAsync("hidden");
+      NavigationBar.setBehaviorAsync("inset-swipe");
     }
   }, []);
 
@@ -63,10 +63,10 @@ export default function RootLayout() {
 
 function AppContent() {
   const { isLoading } = useSettings();
-  
+
   // Initialize AdMob after settings are loaded
   useAdMob();
-  
+
   useEffect(() => {
     if (!isLoading) {
       SplashScreen.hideAsync();
