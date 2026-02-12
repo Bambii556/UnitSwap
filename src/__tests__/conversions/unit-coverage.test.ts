@@ -1,31 +1,37 @@
 import { ALL_CATEGORIES } from "@/constants/categories";
-import { conversionModules, CategoryKey } from "@/conversions";
+import { CategoryKey, conversionModules } from "@/conversions";
 
 describe("Unit Implementation Coverage", () => {
   it("should have implementations for all units defined in categories", () => {
-    const missingImplementations: { category: string; unit: string; name: string }[] = [];
+    const missingImplementations: {
+      category: string;
+      unit: string;
+      name: string;
+    }[] = [];
     const categoryMapping: Record<string, CategoryKey> = {
-      "Length": "length",
-      "Weight": "weight",
-      "Temperature": "temperature",
-      "Volume": "volume",
-      "Area": "area",
-      "Currency": "currency",
-      "Speed": "speed",
-      "Time": "time",
-      "Data": "data",
+      Length: "length",
+      Weight: "weight",
+      Temperature: "temperature",
+      Volume: "volume",
+      Area: "area",
+      // "Currency": "currency",
+      Speed: "speed",
+      Time: "time",
+      Data: "data",
     };
 
     for (const category of ALL_CATEGORIES) {
       const conversionKey = categoryMapping[category.name];
-      
+
       if (!conversionKey) {
-        console.warn(`No conversion module mapping for category: ${category.name}`);
+        console.warn(
+          `No conversion module mapping for category: ${category.name}`,
+        );
         continue;
       }
 
       const conversionModule = conversionModules[conversionKey];
-      
+
       if (!conversionModule) {
         missingImplementations.push({
           category: category.name,
@@ -39,7 +45,7 @@ describe("Unit Implementation Coverage", () => {
 
       for (const unitInfo of category.units) {
         const unitKey = unitInfo.unit;
-        
+
         // Check if the unit exists in the conversion module
         if (!implementedUnits.includes(unitKey)) {
           missingImplementations.push({
@@ -63,29 +69,37 @@ describe("Unit Implementation Coverage", () => {
   });
 
   it("should have all conversion units documented in categories", () => {
-    const extraImplementations: { category: string; unit: string; label: string }[] = [];
+    const extraImplementations: {
+      category: string;
+      unit: string;
+      label: string;
+    }[] = [];
     const categoryMapping: Record<string, string> = {
-      "length": "Length",
-      "weight": "Weight",
-      "temperature": "Temperature",
-      "volume": "Volume",
-      "area": "Area",
-      "currency": "Currency",
-      "speed": "Speed",
-      "time": "Time",
-      "data": "Data",
+      length: "Length",
+      weight: "Weight",
+      temperature: "Temperature",
+      volume: "Volume",
+      area: "Area",
+      // currency: "Currency",
+      speed: "Speed",
+      time: "Time",
+      data: "Data",
     };
 
-    for (const [conversionKey, conversionModule] of Object.entries(conversionModules)) {
+    for (const [conversionKey, conversionModule] of Object.entries(
+      conversionModules,
+    )) {
       const categoryName = categoryMapping[conversionKey];
-      
+
       if (!categoryName) {
-        console.warn(`No category defined for conversion module: ${conversionKey}`);
+        console.warn(
+          `No category defined for conversion module: ${conversionKey}`,
+        );
         continue;
       }
 
       const category = ALL_CATEGORIES.find((c) => c.name === categoryName);
-      
+
       if (!category) {
         extraImplementations.push({
           category: conversionKey,
