@@ -194,6 +194,16 @@ export const HistoryList: React.FC<HistoryListProps> = ({
     return <View className="h-6" />;
   };
 
+  // Show loading indicator during initial load
+  if (loading && conversions.length === 0) {
+    return (
+      <View className="flex-1 items-center justify-center py-12">
+        <ActivityIndicator size="large" color="rgb(var(--color-primary))" />
+        <ThemedText className="text-muted mt-4">Loading history...</ThemedText>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1">
       <FlatList

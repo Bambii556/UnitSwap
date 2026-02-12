@@ -1,4 +1,3 @@
-import { HistoryList } from "@/components/HistoryList";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import {
   CategoryKey,
@@ -22,7 +21,7 @@ interface ConversionContainerProps {
 
 const ConversionContainer: React.FC<ConversionContainerProps> = memo(
   ({ categoryKey, initialUnit }) => {
-    ConversionContainer.displayName = 'ConversionContainer';
+    ConversionContainer.displayName = "ConversionContainer";
     const { formatForConversion } = useNumberFormat();
 
     const currentCategory = useMemo(() => {
@@ -53,25 +52,34 @@ const ConversionContainer: React.FC<ConversionContainerProps> = memo(
 
     // Effect to reset units and values when category changes
     useEffect(() => {
-      console.log("ConversionContainer Effect:", { categoryKey, initialUnit, availableUnits: Object.keys(currentCategory?.units || {}) });
+      console.log("ConversionContainer Effect:", {
+        categoryKey,
+        initialUnit,
+        availableUnits: Object.keys(currentCategory?.units || {}),
+      });
       let firstUnit = "";
       if (initialUnit) {
         const matchedUnit = Object.keys(currentCategory?.units || {}).find(
-          (key) => key.toLowerCase() === initialUnit.toLowerCase()
+          (key) => key.toLowerCase() === initialUnit.toLowerCase(),
         );
         if (matchedUnit) {
           firstUnit = matchedUnit;
         }
       }
       if (!firstUnit) {
-        firstUnit = currentCategory?.baseUnit || Object.keys(currentCategory?.units || {})[0] || "";
+        firstUnit =
+          currentCategory?.baseUnit ||
+          Object.keys(currentCategory?.units || {})[0] ||
+          "";
       }
       console.log("Setting fromUnit to:", firstUnit);
       setFromUnit(firstUnit);
       setToUnit(
-        Object.keys(currentCategory?.units || {}).find(u => u !== firstUnit) ||
-        Object.keys(currentCategory?.units || {})[0] ||
-        "",
+        Object.keys(currentCategory?.units || {}).find(
+          (u) => u !== firstUnit,
+        ) ||
+          Object.keys(currentCategory?.units || {})[0] ||
+          "",
       );
       setFromValue("0");
       setToValue("0");
@@ -150,7 +158,14 @@ const ConversionContainer: React.FC<ConversionContainerProps> = memo(
       return () => {
         clearTimeout(handler);
       };
-    }, [fromValue, fromUnit, toUnit, categoryKey, convertValue, formatForConversion]);
+    }, [
+      fromValue,
+      fromUnit,
+      toUnit,
+      categoryKey,
+      convertValue,
+      formatForConversion,
+    ]);
 
     const handleSwapPress = useCallback(() => {
       const currentFromUnit = fromUnit;
@@ -234,17 +249,6 @@ const ConversionContainer: React.FC<ConversionContainerProps> = memo(
             Recent {currentCategory.name} Conversions
           </ThemedText>
         </View>
-
-        <HistoryList
-          listType="category"
-          categoryKey={categoryKey}
-          currentCategory={currentCategory}
-          refreshTrigger={refreshTrigger}
-          onConversionPress={(item) => {
-            console.log("Tapped on category conversion:", item);
-            // TODO: Optionally navigate back to this screen with pre-filled values
-          }}
-        />
       </View>
     );
   },

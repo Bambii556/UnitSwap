@@ -27,7 +27,10 @@ export default function ConversionScreen() {
           router.back();
         }}
       />
-      <ConversionCard categoryKey={categoryKey} initialUnit={typeof unit === 'string' ? unit : undefined} />
+      <ConversionCard
+        categoryKey={categoryKey}
+        initialUnit={typeof unit === "string" ? unit : undefined}
+      />
 
       <View className="flex-1 safe-area-inset-bottom">
         <HistoryList
