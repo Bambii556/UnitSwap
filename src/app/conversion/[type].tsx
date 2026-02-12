@@ -4,28 +4,13 @@ import ConversionCard from "@/components/ConversionContainer";
 import { HistoryList } from "@/components/HistoryList";
 import { ThemedView } from "@/components/themed-view";
 import { CategoryKey, conversionModules } from "@/conversions";
-import { initDb } from "@/database/database";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
-import { ThemedText } from "../../components/themed-text";
+import React, { useMemo } from "react";
+import { View } from "react-native";
 
 export default function ConversionScreen() {
   const { type, unit } = useLocalSearchParams();
   const router = useRouter();
-  const [dbInitialized, setDbInitialized] = useState(false);
-
-  useEffect(() => {
-    const initializeDatabase = async () => {
-      try {
-        await initDb();
-        setDbInitialized(true);
-      } catch (error) {
-        console.error("Failed to initialize database", error);
-      }
-    };
-    initializeDatabase();
-  }, []);
 
   const categoryKey =
     typeof type === "string" ? (type.toLowerCase() as CategoryKey) : "length";
@@ -39,34 +24,22 @@ export default function ConversionScreen() {
       <AppHeader
         title={currentCategory.name}
         onBackPress={() => {
-          router.back(); // is now handled by ConversionCard if needed
+          router.back();
         }}
       />
-      {/* Render the new smart ConversionCard component */}
       <ConversionCard categoryKey={categoryKey} initialUnit={typeof unit === 'string' ? unit : undefined} />
 
-      {dbInitialized ? (
-        <View className="flex-1 safe-area-inset-bottom">
-          {/* HistoryList remains here, receiving refreshTrigger from ConversionCard if needed */}
-          <HistoryList
-            listType="category"
-            categoryKey={categoryKey}
-            currentCategory={currentCategory}
-            // refreshTrigger={refreshTrigger} // refreshTrigger will now come from ConversionCard itself if needed
-            onConversionPress={(item) => {
-              console.log("Tapped on category conversion:", item);
-              // TODO: Optionally navigate back to this screen with pre-filled values
-            }}
-          />
-        </View>
-      ) : (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#007bff" />
-          <ThemedText className="mt-4">Loading conversions...</ThemedText>
-        </View>
-      )}
+      <View className="flex-1 safe-area-inset-bottom">
+        <HistoryList
+          listType="category"
+          categoryKey={categoryKey}
+          currentCategory={currentCategory}
+          onConversionPress={(item) => {
+            console.log("Tapped on category conversion:", item);
+          }}
+        />
+      </View>
 
-      {/* Banner Ad */}
       <View className="mt-2">
         <AdBanner placement="conversionBanner" />
       </View>

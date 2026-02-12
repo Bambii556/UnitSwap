@@ -4,49 +4,67 @@ const DATABASE_NAME = "conversions.db";
 let _db: SQLite.SQLiteDatabase | null = null; // Declare a module-level variable to hold the database instance
 let _dbPromise: Promise<SQLite.SQLiteDatabase> | null = null; // Promise to hold the database opening operation
 
-export const getDb = async () => {
-  // console.log(
-  //   "getDb called. Current _db: ",
-  //   _db ? "initialized" : "null",
-  //   ", _dbPromise: ",
-  //   _dbPromise ? "pending/resolved" : "null",
-  // );
-
+export const getDb = async (): Promise<SQLite.SQLiteDatabase> => {
   if (_db) {
     return _db;
   }
 
   if (!_dbPromise) {
-    console.log("Initiating database opening: ", DATABASE_NAME);
-    _dbPromise = SQLite.openDatabaseAsync(DATABASE_NAME);
+    console.log("[Database] Opening database:", DATABASE_NAME);
+    _dbPromise = SQLite.openDatabaseAsync(DATABASE_NAME).catch((error) => {
+      console.error("[Database] Failed to open database:", error);
+      _dbPromise = null; // Reset promise on error so next call retries
+      throw error;
+    });
   }
 
   _db = await _dbPromise;
-  // console.log(
-  //   "Database opened (or retrieved). _db: ",
-  //   _db ? "initialized" : "null",
-  // );
   return _db;
 };
 
-export const initDb = async () => {
-  // console.log("initDb called.");
-  const db = await getDb();
-  // console.log("initDb: Database instance obtained. Executing CREATE TABLE...");
-  // Create the conversions table if it doesn&#x27;t exist
-  await db.execAsync(
-    `CREATE TABLE IF NOT EXISTS conversions (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      inputValue REAL NOT NULL,
-      outputValue REAL NOT NULL,
-      originalUnit TEXT NOT NULL,
-      convertedUnit TEXT NOT NULL,
-      conversionType TEXT NOT NULL,
-      timestamp INTEGER NOT NULL
-    );`,
-  );
-  // console.log("initDb: CREATE TABLE command executed.");
+let _initialized = false;
+let _initPromise: Promise<void> | null = null;
+
+export const initDb = async (): Promise<void> => {
+  if (_initialized) {
+    return;
+  }
+
+  if (_initPromise) {
+    return _initPromise;
+  }
+
+  _initPromise = (async () => {
+    try {
+      console.log("[Database] Initializing database...");
+      const db = await getDb();
+
+      // Create the conversions table if it doesn't exist
+      await db.execAsync(
+        `CREATE TABLE IF NOT EXISTS conversions (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          inputValue REAL NOT NULL,
+          outputValue REAL NOT NULL,
+          originalUnit TEXT NOT NULL,
+          convertedUnit TEXT NOT NULL,
+          conversionType TEXT NOT NULL,
+          timestamp INTEGER NOT NULL
+        );`,
+      );
+
+      _initialized = true;
+      console.log("[Database] Database initialized successfully");
+    } catch (error) {
+      console.error("[Database] Failed to initialize database:", error);
+      _initPromise = null; // Reset promise on error
+      throw error;
+    }
+  })();
+
+  return _initPromise;
 };
+
+export const isDbInitialized = (): boolean => _initialized;
 
 export interface Conversion {
   id?: number; // Add optional id for retrieved conversions

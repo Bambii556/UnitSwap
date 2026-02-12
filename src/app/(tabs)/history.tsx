@@ -3,18 +3,11 @@ import { AppHeader } from "@/components/AppHeader";
 import { HistoryList } from "@/components/HistoryList";
 import { ThemedView } from "@/components/themed-view";
 import { SearchBar } from "@/components/ui/SearchBar";
-import { initDb } from "@/database/database";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View } from "react-native";
 
 export default function HistoryScreen() {
   const [searchTerm, setSearchTerm] = useState("");
-
-  useEffect(() => {
-    initDb().catch((error) =>
-      console.error("Failed to initialize database", error),
-    );
-  }, []);
 
   return (
     <ThemedView className="flex-1">
