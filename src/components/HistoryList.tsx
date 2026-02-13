@@ -131,9 +131,9 @@ export const HistoryList: React.FC<HistoryListProps> = ({
       listType,
       categoryKey,
       searchTerm,
-      ITEMS_PER_PAGE,
-      infiniteScroll,
-      refreshing, // Add refreshing to dependencies
+      refreshing,
+      conversions,
+      totalCount,
     ],
   );
 
@@ -169,7 +169,33 @@ export const HistoryList: React.FC<HistoryListProps> = ({
     ? `No recent conversions for this ${currentCategory.name} category yet.`
     : "No recent conversions yet.";
 
-  const renderFooter = () => {
+  const getItemLayout = useCallback(
+    (_: any, index: number) => ({
+      length: 88,
+      offset: 88 * index,
+      index,
+    }),
+    [],
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: Conversion }) => (
+      <HistoryItem
+        fromValue={item.inputValue}
+        fromUnit={item.originalUnit}
+        toValue={item.outputValue}
+        toUnit={item.convertedUnit}
+        timeAgo={formatTimeAgo(item.timestamp)}
+        onPress={() => onConversionPress && onConversionPress(item)}
+        conversionType={item.conversionType}
+        useScientificNotation={settings.useScientificNotation}
+        thousandSeparator={settings.thousandSeparator}
+      />
+    ),
+    [onConversionPress, settings.useScientificNotation, settings.thousandSeparator],
+  );
+
+  const renderFooter = useCallback(() => {
     if (!infiniteScroll) return null;
 
     // Show loading indicator when loading more data
@@ -192,7 +218,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({
 
     // Return empty view for spacing when not loading
     return <View className="h-6" />;
-  };
+  }, [infiniteScroll, loadingMore, hasMore, conversions.length]);
 
   // Show loading indicator during initial load
   if (loading && conversions.length === 0) {
@@ -212,19 +238,12 @@ export const HistoryList: React.FC<HistoryListProps> = ({
         refreshing={refreshing}
         data={conversions}
         keyExtractor={(item) => item.id!.toString()}
-        renderItem={({ item }) => (
-          <HistoryItem
-            fromValue={item.inputValue}
-            fromUnit={item.originalUnit}
-            toValue={item.outputValue}
-            toUnit={item.convertedUnit}
-            timeAgo={formatTimeAgo(item.timestamp)}
-            onPress={() => onConversionPress && onConversionPress(item)}
-            conversionType={item.conversionType}
-            useScientificNotation={settings.useScientificNotation}
-            thousandSeparator={settings.thousandSeparator}
-          />
-        )}
+        renderItem={renderItem}
+        getItemLayout={getItemLayout}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={10}
+        removeClippedSubviews={true}
         ItemSeparatorComponent={() => <View className="h-2" />}
         onEndReached={infiniteScroll ? handleLoadMore : null}
         onEndReachedThreshold={0.3}

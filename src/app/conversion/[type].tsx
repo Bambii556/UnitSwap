@@ -31,7 +31,7 @@ export default function ConversionScreen() {
       <ConversionCard
         categoryKey={categoryKey}
         initialUnit={typeof unit === "string" ? unit : undefined}
-        onHistoryUpdate={() => setHistoryRefreshTrigger(prev => prev + 1)}
+        onHistoryUpdate={() => setHistoryRefreshTrigger((prev) => prev + 1)}
       />
 
       <View className="flex-1 safe-area-inset-bottom">
@@ -46,6 +46,7 @@ export default function ConversionScreen() {
         />
       </View>
 
+      {/* Banner Ad */}
       <View className="mt-2">
         <AdBanner placement="conversionBanner" />
       </View>

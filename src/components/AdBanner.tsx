@@ -1,11 +1,7 @@
+import { ENABLE_REAL_ADS } from "@/config/app.config";
 import { AdPlacement, AdUnits } from "@/utils/admob";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import {
-  BannerAd,
-  BannerAdSize,
-  TestIds,
-} from "react-native-google-mobile-ads";
 
 interface AdBannerProps {
   placement: AdPlacement;
@@ -14,67 +10,64 @@ interface AdBannerProps {
 export const AdBanner: React.FC<AdBannerProps> = ({ placement }) => {
   const [failed, setFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const [isTestMode, setIsTestMode] = useState(true); // Test mode for development
+  const [BannerAdComponent, setBannerAdComponent] = useState<any>(null);
+  const [BannerAdSize, setBannerAdSize] = useState<any>(null);
+  const [TestIds, setTestIds] = useState<any>(null);
 
   useEffect(() => {
-    const setupTestDevices = async () => {
-      if (__DEV__ && isTestMode) {
-        try {
-          // Test device setup - in development, we can use TestIds directly
-          console.log("[AdBanner] Development mode detected - test ads will be used");
-        } catch (err) {
-          console.warn("[AdBanner] Failed to set up test devices:", err);
+    if (!ENABLE_REAL_ADS) {
+      console.log(
+        "[AdBanner] Placeholder mode (set ENABLE_REAL_ADS = true to enable)",
+      );
+      return;
+    }
+
+    const loadAdModule = async () => {
+      try {
+        console.log("[AdBanner] Loading Google Mobile Ads module...");
+
+        const adModule = await import("react-native-google-mobile-ads");
+
+        console.log("[AdBanner] Module loaded, keys:", Object.keys(adModule));
+
+        const BannerAd = adModule.BannerAd;
+        const BannerAdSize = adModule.BannerAdSize;
+        const TestIds = adModule.TestIds;
+
+        if (BannerAd) {
+          setBannerAdComponent(() => BannerAd);
+          setBannerAdSize(BannerAdSize);
+          setTestIds(TestIds);
+          console.log("[AdBanner] Ads initialized successfully!");
         }
+      } catch (err) {
+        console.log("[AdBanner] Failed to load module:", err);
+        setFailed(true);
       }
     };
-    setupTestDevices();
-  }, [isTestMode]);
+
+    loadAdModule();
+  }, []);
 
   const adUnitId = AdUnits[placement];
-  // Use test ID in development mode, otherwise use real ad unit ID
-  const unitId = __DEV__ ? TestIds?.BANNER : adUnitId;
+  const unitId = __DEV__
+    ? TestIds?.BANNER || "ca-app-pub-3940256099942544/6300978111"
+    : adUnitId;
 
-  if (!BannerAd) {
+  // Show placeholder unless real ads are explicitly enabled
+  if (!ENABLE_REAL_ADS || failed || !BannerAdComponent) {
     return (
-      <View
-        style={[
-          styles.container,
-          styles.redBorder,
-          styles.placeholderContainer,
-        ]}
-      >
-        <View style={styles.borderLabel}>
-          <Text style={styles.borderLabelText}>AD: {placement}</Text>
-        </View>
-        <Text style={styles.placeholderText}>AdMob Not Initialized</Text>
-        <Text style={styles.placeholderSubtext}>
-          Ensure react-native-google-mobile-ads is installed and configured.
-        </Text>
-      </View>
-    );
-  }
-
-  if (failed) {
-    return (
-      <View
-        style={[styles.container, styles.redBorder, styles.failedContainer]}
-      >
-        <Text style={styles.failedText}>Ad Failed to Load</Text>
-        <Text style={styles.placementText}>{placement}</Text>
+      <View style={[styles.container, { borderColor: "red", borderWidth: 1 }]}>
+        <Text style={styles.placeholderText}>Advertisement</Text>
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, styles.redBorder]}>
-      {/* Red border visualization */}
-      <View style={styles.borderLabel}>
-        <Text style={styles.borderLabelText}>AD: {placement}</Text>
-      </View>
-
+    <View style={styles.container}>
       {unitId && (
-        <BannerAd
-          size={BannerAdSize.INLINE_ADAPTIVE_BANNER}
+        <BannerAdComponent
+          size={BannerAdSize?.BANNER || "BANNER"}
           unitId={unitId}
           requestOptions={{
             requestNonPersonalizedAdsOnly: true,
@@ -89,12 +82,6 @@ export const AdBanner: React.FC<AdBannerProps> = ({ placement }) => {
           }}
         />
       )}
-
-      {!loaded && !failed && (
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading Ad...</Text>
-        </View>
-      )}
     </View>
   );
 };
@@ -102,68 +89,14 @@ export const AdBanner: React.FC<AdBannerProps> = ({ placement }) => {
 const styles = StyleSheet.create({
   container: {
     width: "100%",
+    height: 50,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255, 0, 0, 0.05)",
+    backgroundColor: "#f0f0f0",
     marginVertical: 8,
-    position: "relative",
-  },
-  redBorder: {
-    borderWidth: 3,
-    borderColor: "#FF0000",
-    borderStyle: "dashed",
-    borderRadius: 4,
-  },
-  borderLabel: {
-    position: "absolute",
-    top: -12,
-    left: 8,
-    backgroundColor: "#FF0000",
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-    zIndex: 10,
-  },
-  borderLabelText: {
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "bold",
-  },
-  loadingContainer: {
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingText: {
-    color: "#FF0000",
-    fontSize: 12,
-  },
-  failedContainer: {
-    height: 50,
-    backgroundColor: "rgba(255, 0, 0, 0.1)",
-  },
-  failedText: {
-    color: "#FF0000",
-    fontSize: 12,
-    fontWeight: "bold",
-  },
-  placementText: {
-    color: "#FF0000",
-    fontSize: 10,
-    marginTop: 2,
-  },
-  placeholderContainer: {
-    height: 60,
-    backgroundColor: "rgba(255, 0, 0, 0.05)",
   },
   placeholderText: {
-    color: "#FF0000",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  placeholderSubtext: {
-    color: "#FF0000",
-    fontSize: 10,
-    marginTop: 2,
+    color: "#999",
+    fontSize: 12,
   },
 });

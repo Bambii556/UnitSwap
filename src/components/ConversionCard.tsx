@@ -32,6 +32,8 @@ const ConversionCard: React.FC<ConversionCardProps> = memo(
   }) => {
     const { colors } = useAppTheme();
 
+    ConversionCard.displayName = "ConversionCard";
+
     const textInputRef = useRef<TextInput>(null);
     const [isEditing, setIsEditing] = useState(false); // Reintroduce isEditing state
 
