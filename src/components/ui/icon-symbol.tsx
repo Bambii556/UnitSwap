@@ -35,6 +35,9 @@ const MAPPING = {
   "questionmark.circle.fill": "help", // Added default icon for CategoryIcon
   "thermometer.medium.slash.fill": "thermostat", // From categories.ts
   memorychip: "memory", // From categories.ts
+  "checkmark.circle.fill": "check-circle", // Premium status checkmark
+  "star.fill": "star", // Premium star icon
+  "arrow.clockwise": "refresh", // Restore purchases
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;

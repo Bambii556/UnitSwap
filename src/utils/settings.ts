@@ -5,6 +5,7 @@ export interface AppSettings {
   decimalPlaces: number;
   thousandSeparator: "," | " " | "none";
   useScientificNotation: boolean;
+  isPremium: boolean;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -12,6 +13,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   decimalPlaces: 2,
   thousandSeparator: ",",
   useScientificNotation: false,
+  isPremium: false,
 };
 
 const SETTINGS_KEY = "app_settings";

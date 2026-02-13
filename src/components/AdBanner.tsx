@@ -1,4 +1,5 @@
 import { ENABLE_REAL_ADS } from "@/config/app.config";
+import { useSettings } from "@/providers/SettingsProvider";
 import { AdPlacement, AdUnits } from "@/utils/admob";
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
@@ -9,6 +10,7 @@ interface AdBannerProps {
 }
 
 export const AdBanner: React.FC<AdBannerProps> = ({ placement }) => {
+  const { settings } = useSettings();
   const [failed, setFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [BannerAdComponent, setBannerAdComponent] = useState<any>(null);
@@ -25,12 +27,7 @@ export const AdBanner: React.FC<AdBannerProps> = ({ placement }) => {
 
     const loadAdModule = async () => {
       try {
-        console.log("[AdBanner] Loading Google Mobile Ads module...");
-
         const adModule = await import("react-native-google-mobile-ads");
-
-        console.log("[AdBanner] Module loaded, keys:", Object.keys(adModule));
-
         const BannerAd = adModule.BannerAd;
         const BannerAdSize = adModule.BannerAdSize;
         const TestIds = adModule.TestIds;
@@ -55,6 +52,11 @@ export const AdBanner: React.FC<AdBannerProps> = ({ placement }) => {
     ? TestIds?.LARGE_BANNER || "ca-app-pub-3940256099942544/6300978111"
     : adUnitId;
 
+  // Don't show ads if user has purchased premium
+  if (settings.isPremium) {
+    return null;
+  }
+
   // Show placeholder unless real ads are explicitly enabled
   if (!ENABLE_REAL_ADS || failed || !BannerAdComponent) {
     return (
@@ -74,11 +76,9 @@ export const AdBanner: React.FC<AdBannerProps> = ({ placement }) => {
             requestNonPersonalizedAdsOnly: true,
           }}
           onAdLoaded={() => {
-            console.log(`[AdBanner] ${placement} loaded successfully`);
             setLoaded(true);
           }}
           onAdFailedToLoad={(error: any) => {
-            console.log(`[AdBanner] ${placement} failed to load:`, error);
             setFailed(true);
           }}
         />

@@ -1,6 +1,7 @@
 import { initDb } from "@/database/database";
 import { useAdMob } from "@/hooks/useAdMob";
-import { useSettings } from "@/providers/SettingsProvider";
+import { PremiumProvider } from "@/providers/PremiumProvider";
+import { SettingsProvider, useSettings } from "@/providers/SettingsProvider";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ThemeProvider as NavigationThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
@@ -12,7 +13,6 @@ import React, { useEffect } from "react";
 import { ActivityIndicator, Platform, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../global.css";
-import { SettingsProvider } from "../providers/SettingsProvider";
 import { ThemeProvider, useAppTheme } from "../providers/ThemeProvider";
 
 const initializeDatabase = async () => {
@@ -53,9 +53,11 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <SettingsProvider>
-        <ThemeProvider>
-          <AppContent />
-        </ThemeProvider>
+        <PremiumProvider>
+          <ThemeProvider>
+            <AppContent />
+          </ThemeProvider>
+        </PremiumProvider>
       </SettingsProvider>
     </SafeAreaProvider>
   );

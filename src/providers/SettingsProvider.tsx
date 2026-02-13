@@ -7,6 +7,7 @@ import {
 import React, {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -17,6 +18,7 @@ import { useColorScheme as useSystemColorScheme } from "react-native";
 interface SettingsContextType {
   settings: AppSettings;
   updateSettings: (newSettings: Partial<AppSettings>) => void;
+  updatePremiumStatus: (isPremium: boolean) => void;
   colorScheme: "light" | "dark";
   isLoading: boolean;
 }
@@ -51,15 +53,29 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     return activeTheme === "dark" ? "dark" : "light";
   }, [settings.theme, systemColorScheme]);
 
-  const updateSettings = async (newSettings: Partial<AppSettings>) => {
+  const updateSettings = useCallback(async (newSettings: Partial<AppSettings>) => {
     const updated = { ...settings, ...newSettings };
     setSettings(updated);
     await saveSettings(updated);
-  };
+  }, [settings]);
+
+  /**
+   * Update premium status - used by PremiumProvider to sync with RevenueCat
+   * Only updates if the value has actually changed
+   */
+  const updatePremiumStatus = useCallback(async (isPremium: boolean) => {
+    if (settings.isPremium !== isPremium) {
+      const updated = { ...settings, isPremium };
+      setSettings(updated);
+      await saveSettings(updated);
+      console.log("[SettingsProvider] Premium status updated:", isPremium);
+    }
+  }, [settings]);
 
   const contextValue = {
     settings,
     updateSettings,
+    updatePremiumStatus,
     colorScheme,
     isLoading,
   };
