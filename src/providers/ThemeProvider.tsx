@@ -60,7 +60,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const colors = useMemo(() => Theme[colorScheme], [colorScheme]);
   const isDark = colorScheme === "dark";
-  const navigationTheme = isDark ? NavigationDarkTheme : NavigationLightTheme;
+  const navigationTheme = useMemo(
+    () => (isDark ? NavigationDarkTheme : NavigationLightTheme),
+    [isDark]
+  );
 
   return (
     <ThemeContext.Provider value={{ colorScheme, colors, isDark, navigationTheme }}>

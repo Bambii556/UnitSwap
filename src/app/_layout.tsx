@@ -88,21 +88,20 @@ function RootLayoutContent() {
   const { colorScheme, navigationTheme } = useAppTheme();
 
   return (
-    <NavigationThemeProvider value={navigationTheme}>
-      <View className={`flex-1 bg-background ${colorScheme}`}>
-        <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+    <View className={`flex-1 bg-background ${colorScheme}`}>
+      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+      <NavigationThemeProvider value={navigationTheme}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" />
           <Stack.Screen
             name="conversion/[type]"
             options={{
               presentation:
                 Platform.OS === "android" ? "containedModal" : "modal",
-              headerShown: false,
             }}
           />
         </Stack>
-      </View>
-    </NavigationThemeProvider>
+      </NavigationThemeProvider>
+    </View>
   );
 }
