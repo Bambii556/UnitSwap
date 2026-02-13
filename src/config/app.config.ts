@@ -1,22 +1,18 @@
 import Constants from "expo-constants";
 
-// EAS environment variables are only available in EAS builds, not Expo Go
-// In Expo Go, this will be undefined, so we default to false for safety
-const EAS_ENABLE_ADS = process.env.ENABLE_ADS;
+// Read from app.json extra field - this works in both Expo Go and EAS builds
+const extraConfig = Constants.expoConfig?.extra || {};
 
-// Check if we're in an EAS build (EAS env vars are set)
+// Check if we're in an EAS build
 const isEASBuild = !!process.env.EAS_BUILD;
 
-// Enable ads if:
-// 1. We're in an EAS build AND ENABLE_ADS is set to "true", OR
-// 2. We're in development mode (__DEV__) and you want to test (set to true manually)
-export const ENABLE_REAL_ADS = isEASBuild
-  ? EAS_ENABLE_ADS === "true"
-  : false; // Default to false for Expo Go
+// Enable ads based on app.json extra config
+// This can be overridden per build profile in eas.json
+export const ENABLE_REAL_ADS = extraConfig.enableRealAds === true;
 
 console.log("[AppConfig] ENABLE_REAL_ADS:", ENABLE_REAL_ADS);
 console.log("[AppConfig] Is EAS Build:", isEASBuild);
-console.log("[AppConfig] EAS_ENABLE_ADS env var:", EAS_ENABLE_ADS);
+console.log("[AppConfig] Extra config:", extraConfig);
 
 export const APP_CONFIG = {
   enableRealAds: ENABLE_REAL_ADS,
