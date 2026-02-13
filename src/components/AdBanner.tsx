@@ -1,7 +1,8 @@
 import { ENABLE_REAL_ADS } from "@/config/app.config";
 import { AdPlacement, AdUnits } from "@/utils/admob";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { View } from "react-native";
+import { ThemedText } from "./themed-text";
 
 interface AdBannerProps {
   placement: AdPlacement;
@@ -51,23 +52,23 @@ export const AdBanner: React.FC<AdBannerProps> = ({ placement }) => {
 
   const adUnitId = AdUnits[placement];
   const unitId = __DEV__
-    ? TestIds?.BANNER || "ca-app-pub-3940256099942544/6300978111"
+    ? TestIds?.LARGE_BANNER || "ca-app-pub-3940256099942544/6300978111"
     : adUnitId;
 
   // Show placeholder unless real ads are explicitly enabled
   if (!ENABLE_REAL_ADS || failed || !BannerAdComponent) {
     return (
-      <View style={[styles.container, { borderColor: "red", borderWidth: 1 }]}>
-        <Text style={styles.placeholderText}>Advertisement</Text>
-      </View>
+      <AdContainer>
+        <ThemedText>Advertisement</ThemedText>
+      </AdContainer>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <AdContainer>
       {unitId && (
         <BannerAdComponent
-          size={BannerAdSize?.BANNER || "BANNER"}
+          size={BannerAdSize?.LARGE_BANNER || "LARGE_BANNER"}
           unitId={unitId}
           requestOptions={{
             requestNonPersonalizedAdsOnly: true,
@@ -82,21 +83,12 @@ export const AdBanner: React.FC<AdBannerProps> = ({ placement }) => {
           }}
         />
       )}
-    </View>
+    </AdContainer>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-    height: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f0f0f0",
-    marginVertical: 8,
-  },
-  placeholderText: {
-    color: "#999",
-    fontSize: 12,
-  },
-});
+function AdContainer({ children }: { children: React.ReactNode }) {
+  return (
+    <View className="w-full items-center justify-center my-4">{children}</View>
+  );
+}
