@@ -87,7 +87,7 @@
       "eas": {
         "projectId": "2cdbc59c-e02f-40cf-8229-5902195bce7c"
       },
-      "enableRealAds": false
+      "enableRealAds": true
     },
     "owner": "nerdopsapps"
   }
