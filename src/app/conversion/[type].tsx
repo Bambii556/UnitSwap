@@ -21,7 +21,7 @@ export default function ConversionScreen() {
   }, [categoryKey]);
 
   return (
-    <ThemedView className="px-4 pt-8 flex-1">
+    <ThemedView className="px-4 pt-[50px]">
       <AppHeader
         title={currentCategory.name}
         onBackPress={() => {

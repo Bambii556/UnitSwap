@@ -19,7 +19,7 @@ export default function HomeScreen() {
     : ALL_CATEGORIES.slice(0, 4);
 
   return (
-    <ThemedView className="pt-[50px]">
+    <ThemedView className="pt-[70px]">
       {/* Introduction */}
       <View className="justify-center items-center gap-2 mb-4">
         <ThemedText type="title" className="">

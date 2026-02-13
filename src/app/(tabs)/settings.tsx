@@ -10,7 +10,7 @@ import { ScrollView } from "react-native";
 
 export default function SettingsScreen() {
   return (
-    <ThemedView className="px-4 pt-4 flex-1">
+    <ThemedView className="pt-[50px] px-4">
       <AppHeader title="Settings" />
       <ScrollView
         className="flex-1 bg-background"

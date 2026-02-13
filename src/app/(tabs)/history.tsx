@@ -19,7 +19,7 @@ export default function HistoryScreen() {
   }, [searchTerm]);
 
   return (
-    <ThemedView className="flex-1">
+    <ThemedView className="pt-[50px]">
       <AppHeader title="Conversion History" />
 
       {/* Search Bar */}

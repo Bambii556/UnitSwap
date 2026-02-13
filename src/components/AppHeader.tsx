@@ -27,12 +27,16 @@ export function AppHeader({
       <View>
         {onBackPress && (
           <TouchableOpacity onPress={onBackPress}>
-            <IconSymbol name="xmark.circle.fill" color={colors.icon} size={28} />
+            <IconSymbol
+              name="xmark.circle.fill"
+              color={colors.icon}
+              size={28}
+            />
           </TouchableOpacity>
         )}
       </View>
       <View>
-        <ThemedText className="text-text text-xl font-bold">
+        <ThemedText className="text-text text-2xl font-bold">
           {title}
         </ThemedText>
       </View>
