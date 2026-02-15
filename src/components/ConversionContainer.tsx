@@ -9,8 +9,8 @@ import { fetchCurrencyRates } from "@/conversions/converters/currency";
 import { saveConversion } from "@/database/database";
 import { useNumberFormat } from "@/hooks/useNumberFormat";
 import { cleanInput } from "@/utils/number-format";
-import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { InteractionManager, TouchableOpacity, View } from "react-native";
 import ConversionCard from "./ConversionCard";
 import { ThemedText } from "./themed-text";
 
@@ -50,50 +50,64 @@ const ConversionContainer: React.FC<ConversionContainerProps> = memo(
     const [currencyRates, setCurrencyRates] = useState<CurrencyRates | null>(
       null,
     );
+    const isInitialMount = useRef(true);
 
     // Effect to reset units and values when category changes
     useEffect(() => {
-      console.log("ConversionContainer Effect:", {
-        categoryKey,
-        initialUnit,
-        availableUnits: Object.keys(currentCategory?.units || {}),
-      });
       let firstUnit = "";
+      const unitKeys = Object.keys(currentCategory?.units || {});
+      
       if (initialUnit) {
-        const matchedUnit = Object.keys(currentCategory?.units || {}).find(
+        const matchedUnit = unitKeys.find(
           (key) => key.toLowerCase() === initialUnit.toLowerCase(),
         );
         if (matchedUnit) {
           firstUnit = matchedUnit;
         }
       }
+      
       if (!firstUnit) {
-        firstUnit =
-          currentCategory?.baseUnit ||
-          Object.keys(currentCategory?.units || {})[0] ||
-          "";
+        firstUnit = currentCategory?.baseUnit || unitKeys[0] || "";
       }
-      console.log("Setting fromUnit to:", firstUnit);
+      
+      const secondUnit = unitKeys.find((u) => u !== firstUnit) || unitKeys[0] || "";
+      
+      // Batch all state updates together
       setFromUnit(firstUnit);
-      setToUnit(
-        Object.keys(currentCategory?.units || {}).find(
-          (u) => u !== firstUnit,
-        ) ||
-          Object.keys(currentCategory?.units || {})[0] ||
-          "",
-      );
+      setToUnit(secondUnit);
       setFromValue("0");
       setToValue("0");
+      setFromDisplayValue("0");
+      setToDisplayValue("0");
     }, [categoryKey, currentCategory, initialUnit]);
 
-    // Effect to fetch currency rates
+    // Effect to fetch currency rates - deferred until after navigation
     useEffect(() => {
       if (categoryKey === "currency") {
+        let isCancelled = false;
+        
         const getRates = async () => {
-          const rates = await fetchCurrencyRates();
-          setCurrencyRates(rates);
+          try {
+            const rates = await fetchCurrencyRates();
+            if (!isCancelled) {
+              setCurrencyRates(rates);
+            }
+          } catch (error) {
+            console.error("Failed to fetch currency rates:", error);
+          }
         };
-        getRates();
+        
+        // Defer currency fetch until after navigation transition
+        const interactionPromise = InteractionManager.runAfterInteractions(() => {
+          if (!isCancelled) {
+            getRates();
+          }
+        });
+        
+        return () => {
+          isCancelled = true;
+          interactionPromise.cancel();
+        };
       } else {
         setCurrencyRates(null);
       }
@@ -125,9 +139,16 @@ const ConversionContainer: React.FC<ConversionContainerProps> = memo(
 
     // Effect to perform conversion when fromValue, units, or category changes
     useEffect(() => {
-      const converted = convertValue(fromValue, fromUnit, toUnit);
-      setToValue(converted);
+      // Skip conversion on initial mount
+      if (isInitialMount.current) {
+        isInitialMount.current = false;
+        return;
+      }
 
+      const converted = convertValue(fromValue, fromUnit, toUnit);
+      
+      // Batch display updates
+      setToValue(converted);
       setFromDisplayValue(formatForConversion(fromValue));
       setToDisplayValue(formatForConversion(converted));
 
@@ -173,25 +194,11 @@ const ConversionContainer: React.FC<ConversionContainerProps> = memo(
     ]);
 
     const handleSwapPress = useCallback(() => {
-      const currentFromUnit = fromUnit;
-      const currentToUnit = toUnit;
-      const currentFromValue = fromValue;
-      const currentToValue = toValue;
-
-      setFromUnit(currentToUnit);
-      setToUnit(currentFromUnit);
-      setFromValue(currentToValue);
-      setToValue(currentFromValue);
-    }, [
-      fromUnit,
-      toUnit,
-      fromValue,
-      toValue,
-      setFromUnit,
-      setToUnit,
-      setFromValue,
-      setToValue,
-    ]);
+      setFromUnit(toUnit);
+      setToUnit(fromUnit);
+      setFromValue(toValue);
+      setToValue(fromValue);
+    }, [fromUnit, toUnit, fromValue, toValue]);
 
     return (
       <View className="mt-4">

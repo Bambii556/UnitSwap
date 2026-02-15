@@ -8,8 +8,8 @@ import {
 } from "@/database/database";
 import { useSettings } from "@/providers/SettingsProvider";
 import { formatTimeAgo } from "@/utils/time";
-import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, View } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { ActivityIndicator, FlatList, InteractionManager, View } from "react-native";
 import { ThemedText } from "./themed-text";
 
 interface HistoryListProps {
@@ -41,16 +41,17 @@ export const HistoryList: React.FC<HistoryListProps> = ({
   const [refreshing, setRefreshing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const isMounted = useRef(false);
 
   const fetchConversions = useCallback(
-    async (page: number, append: boolean = false) => {
+    async (page: number, append: boolean = false, isRefreshing: boolean = false) => {
       if (append) {
         setLoadingMore(true);
       } else {
         setLoading(true);
       }
 
-      if (refreshing) {
+      if (isRefreshing) {
         setRefreshing(true);
       }
 
@@ -71,7 +72,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({
               searchTerm,
               ITEMS_PER_PAGE,
               offset,
-              undefined, // categoryKey
+              undefined,
             );
           } else {
             countResult = await db.getFirstAsync<{ count: number }>(
@@ -100,8 +101,10 @@ export const HistoryList: React.FC<HistoryListProps> = ({
         }
 
         const newTotalCount = countResult?.count || 0;
-        setTotalCount(newTotalCount);
         const more = fetchedConversions.length === ITEMS_PER_PAGE;
+
+        // Batch state updates
+        setTotalCount(newTotalCount);
         setHasMore(more);
 
         if (append) {
@@ -110,46 +113,49 @@ export const HistoryList: React.FC<HistoryListProps> = ({
             const uniqueNewConversions = fetchedConversions.filter(
               (item) => !existingIds.has(item.id),
             );
-            const newConversions = [...prev, ...uniqueNewConversions];
-            return newConversions;
+            return [...prev, ...uniqueNewConversions];
           });
         } else {
           setConversions(fetchedConversions);
         }
       } catch (error: any) {
         console.error("Failed to fetch conversions in list", error);
-        setConversions(append ? conversions : []);
-        setTotalCount(append ? totalCount : 0);
-        setHasMore(false);
+        if (!append) {
+          setConversions([]);
+          setTotalCount(0);
+          setHasMore(false);
+        }
       } finally {
         setLoading(false);
         setLoadingMore(false);
         setRefreshing(false);
       }
     },
-    [
-      listType,
-      categoryKey,
-      searchTerm,
-      refreshing,
-      conversions,
-      totalCount,
-    ],
+    [listType, categoryKey, searchTerm],
   );
 
   useEffect(() => {
-    setHasMore(true); // Reset hasMore when searchTerm or categoryKey changes
-    setCurrentPage(1); // Always start from page 1 for new searches/categories
-    // Reset conversions to empty to avoid stale data
-    fetchConversions(1); // Fetch first page
-  }, [searchTerm, categoryKey, refreshTrigger]);
+    isMounted.current = true;
+    
+    // Defer data loading until after navigation transition completes
+    const interactionPromise = InteractionManager.runAfterInteractions(() => {
+      if (isMounted.current) {
+        setHasMore(true);
+        setCurrentPage(1);
+        fetchConversions(1);
+      }
+    });
+
+    return () => {
+      isMounted.current = false;
+      interactionPromise.cancel();
+    };
+  }, [searchTerm, categoryKey, refreshTrigger, fetchConversions]);
 
   const handleRefresh = useCallback(() => {
-    setRefreshing(true);
-    // Do not clear conversions immediately; let new data replace old once fetched
-    setCurrentPage(1); // Reset to first page
-    setHasMore(true); // Assume there's more data to fetch on refresh
-    fetchConversions(1); // Fetch first page again
+    setCurrentPage(1);
+    setHasMore(true);
+    fetchConversions(1, false, true);
   }, [fetchConversions]);
 
   const handleLoadMore = () => {
@@ -163,7 +169,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({
     if (currentPage > 1 && infiniteScroll) {
       fetchConversions(currentPage, true);
     }
-  }, [currentPage, infiniteScroll]);
+  }, [currentPage, infiniteScroll, fetchConversions]);
 
   const emptyText = currentCategory
     ? `No recent conversions for this ${currentCategory.name} category yet.`

@@ -3,8 +3,8 @@ import { Conversion, getConversions } from "@/database/database";
 import { useSettings } from "@/providers/SettingsProvider";
 import { formatTimeAgo } from "@/utils/time";
 import { useFocusEffect } from "@react-navigation/native";
-import React, { useCallback, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import React, { useCallback, useRef, useState } from "react";
+import { ActivityIndicator, InteractionManager, View } from "react-native";
 import { ThemedText } from "./themed-text";
 
 interface RecentConversionsProps {
@@ -17,25 +17,43 @@ export const RecentConversions: React.FC<RecentConversionsProps> = ({
   const { settings } = useSettings();
   const [conversions, setConversions] = useState<Conversion[]>([]);
   const [loading, setLoading] = useState(true);
+  const isMounted = useRef(false);
 
   useFocusEffect(
     useCallback(() => {
-      const fetchLatestConversions = async () => {
-        try {
-          console.log("Fetching latest conversions...");
-          setLoading(true);
-          // Fetch top 5 latest conversions, no offset
-          const fetchedConversions = await getConversions(5, 0);
-          setConversions(fetchedConversions);
-        } catch (error) {
-          console.error("Failed to fetch latest conversions:", error);
-          setConversions([]);
-        } finally {
-          setLoading(false);
-        }
-      };
+      isMounted.current = true;
 
-      fetchLatestConversions();
+      // Defer data loading until after navigation transition completes
+      const interactionPromise = InteractionManager.runAfterInteractions(() => {
+        if (!isMounted.current) return;
+
+        const fetchLatestConversions = async () => {
+          try {
+            setLoading(true);
+            // Fetch top 5 latest conversions, no offset
+            const fetchedConversions = await getConversions(5, 0);
+            if (isMounted.current) {
+              setConversions(fetchedConversions);
+            }
+          } catch (error) {
+            console.error("Failed to fetch latest conversions:", error);
+            if (isMounted.current) {
+              setConversions([]);
+            }
+          } finally {
+            if (isMounted.current) {
+              setLoading(false);
+            }
+          }
+        };
+
+        fetchLatestConversions();
+      });
+
+      return () => {
+        isMounted.current = false;
+        interactionPromise.cancel();
+      };
     }, []),
   );
 

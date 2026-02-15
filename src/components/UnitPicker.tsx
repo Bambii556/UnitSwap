@@ -1,7 +1,7 @@
 import { UnitType } from "@/conversions";
 import { useAppTheme } from "@/providers/ThemeProvider";
 import { MaterialIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   FlatList,
   Modal,
@@ -18,7 +18,7 @@ interface UnitPickerProps {
   units: Record<string, UnitType>;
 }
 
-const UnitPicker: React.FC<UnitPickerProps> = ({
+const UnitPicker: React.FC<UnitPickerProps> = React.memo(({
   direction,
   selectedValue,
   onValueChange,
@@ -27,9 +27,14 @@ const UnitPicker: React.FC<UnitPickerProps> = ({
   const { colors } = useAppTheme();
 
   const [modalVisible, setModalVisible] = useState(false);
-  const unitKeys = Object.keys(units);
-
-  const selectedUnitLabel = units[selectedValue]?.label || "Select Unit";
+  
+  // Memoize unit keys to prevent recalculation on every render
+  const unitKeys = useMemo(() => Object.keys(units), [units]);
+  
+  // Memoize the selected unit label
+  const selectedUnitLabel = useMemo(() => {
+    return units[selectedValue]?.label || "Select Unit";
+  }, [units, selectedValue]);
 
   return (
     <View>
@@ -68,6 +73,15 @@ const UnitPicker: React.FC<UnitPickerProps> = ({
             <FlatList
               data={unitKeys}
               keyExtractor={(item) => item}
+              initialNumToRender={10}
+              maxToRenderPerBatch={10}
+              windowSize={5}
+              removeClippedSubviews={true}
+              getItemLayout={(_, index) => ({
+                length: 40,
+                offset: 40 * index,
+                index,
+              })}
               renderItem={({ item: key }) => (
                 <TouchableOpacity
                   className={`py-2 px-3 rounded-md active:bg-primary/20 ${selectedValue === key ? "bg-primary/10" : ""}`}
@@ -89,6 +103,8 @@ const UnitPicker: React.FC<UnitPickerProps> = ({
       </Modal>
     </View>
   );
-};
+});
+
+UnitPicker.displayName = "UnitPicker";
 
 export default UnitPicker;

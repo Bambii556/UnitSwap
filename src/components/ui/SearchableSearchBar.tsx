@@ -3,7 +3,7 @@ import { useAppTheme } from "@/providers/ThemeProvider";
 import { ALL_SEARCHABLE_UNITS } from "@/utils/search-units";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { SearchBar } from "./SearchBar";
 
@@ -15,24 +15,43 @@ export function SearchableSearchBar({
   const { colors } = useAppTheme();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     onFocusChange?.(isFocused);
   }, [isFocused, onFocusChange]);
 
-  // Filter units based on search query
-  const filteredUnits = useMemo(() => {
-    if (!searchQuery.trim()) return [];
+  // Debounce search query to prevent filtering on every keystroke
+  useEffect(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
 
-    const lowerQuery = searchQuery.toLowerCase();
+    debounceTimerRef.current = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 150); // 150ms debounce
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [searchQuery]);
+
+  // Filter units based on debounced search query
+  const filteredUnits = useMemo(() => {
+    if (!debouncedQuery.trim()) return [];
+
+    const lowerQuery = debouncedQuery.toLowerCase();
     return ALL_SEARCHABLE_UNITS.filter(
       (unit) =>
         unit.fullName.toLowerCase().includes(lowerQuery) ||
         unit.symbol.toLowerCase().includes(lowerQuery) ||
         unit.categoryName.toLowerCase().includes(lowerQuery),
     );
-  }, [searchQuery]);
+  }, [debouncedQuery]);
 
   const handleSelectUnit = (categoryName: string, unitSymbol?: string) => {
     setSearchQuery("");
@@ -110,7 +129,7 @@ export function SearchableSearchBar({
               </TouchableOpacity>
             )}
             ListEmptyComponent={
-              searchQuery.length > 0 ? (
+              debouncedQuery.length > 0 ? (
                 <View className="px-4 py-4 items-center">
                   <ThemedText className="text-muted">No units found</ThemedText>
                 </View>

@@ -5,18 +5,28 @@ import { ThemedView } from "@/components/themed-view";
 import { SearchableSearchBar } from "@/components/ui/SearchableSearchBar";
 import { Conversion } from "@/database/database";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { ThemedText } from "../../components/themed-text";
 import { ALL_CATEGORIES } from "../../constants/categories";
 
 export default function HomeScreen() {
-  const [showAllCategories, setShowAllCategories] = useState(false); // New state for toggling categories visibility
+  const [showAllCategories, setShowAllCategories] = useState(false);
   const router = useRouter();
 
-  const filteredCategories = showAllCategories
-    ? ALL_CATEGORIES
-    : ALL_CATEGORIES.slice(0, 4);
+  const filteredCategories = useMemo(() => {
+    return showAllCategories
+      ? ALL_CATEGORIES
+      : ALL_CATEGORIES.slice(0, 4);
+  }, [showAllCategories]);
+
+  // Pre-compute category data to avoid mapping on every render
+  const categoryData = useMemo(() => {
+    return filteredCategories.map((category) => ({
+      ...category,
+      unitsString: category.units.map((u) => u.unit).join(", "),
+    }));
+  }, [filteredCategories]);
 
   return (
     <ThemedView className="pt-[70px]">
@@ -54,11 +64,11 @@ export default function HomeScreen() {
 
         {/* Categories Grid */}
         <View className="mt-4 px-4 flex-row flex-wrap justify-between gap-4">
-          {filteredCategories.map((category) => (
+          {categoryData.map((category) => (
             <CategoryCard
               key={category.name}
               title={category.name}
-              units={category.units.map((u) => u.unit).join(", ")}
+              units={category.unitsString}
               color={category.color}
               onPress={() =>
                 router.push({

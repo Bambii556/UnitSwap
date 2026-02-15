@@ -20,6 +20,20 @@ export default function ConversionScreen() {
     return conversionModules[categoryKey] || conversionModules["length"];
   }, [categoryKey]);
 
+  // Memoize the history update callback to prevent unnecessary re-renders
+  const handleHistoryUpdate = useMemo(
+    () => () => setHistoryRefreshTrigger((prev) => prev + 1),
+    []
+  );
+
+  // Memoize the conversion press handler
+  const handleConversionPress = useMemo(
+    () => (item: any) => {
+      console.log("Tapped on category conversion:", item);
+    },
+    []
+  );
+
   return (
     <ThemedView className="px-4 pt-[50px]">
       <AppHeader
@@ -31,7 +45,7 @@ export default function ConversionScreen() {
       <ConversionCard
         categoryKey={categoryKey}
         initialUnit={typeof unit === "string" ? unit : undefined}
-        onHistoryUpdate={() => setHistoryRefreshTrigger((prev) => prev + 1)}
+        onHistoryUpdate={handleHistoryUpdate}
       />
 
       <View className="flex-1 safe-area-inset-bottom">
@@ -40,9 +54,7 @@ export default function ConversionScreen() {
           categoryKey={categoryKey}
           currentCategory={currentCategory}
           refreshTrigger={historyRefreshTrigger}
-          onConversionPress={(item) => {
-            console.log("Tapped on category conversion:", item);
-          }}
+          onConversionPress={handleConversionPress}
         />
       </View>
 
